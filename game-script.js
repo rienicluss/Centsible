@@ -6,6 +6,7 @@ const gs = {
   energy:10,health:10,friendship:10,family:10,grades:85,stress:3,
   totalSpent:0,
   debt:0,
+  weeklyChoices:[],
 };
 
 // Initialize game state from session storage
@@ -141,7 +142,11 @@ function makeChoice(ch){
   document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=true);
   const oldMoney=gs.money;
   gs.money+=-(ch.cost);
-  if(ch.cost>0)gs.totalSpent+=ch.cost;
+  if(ch.cost>0){
+    gs.totalSpent+=ch.cost;
+    // Track choice for weekly receipt
+    gs.weeklyChoices.push({title:ch.text, cost:ch.cost});
+  }
   const im=ch.impact;
   gs.energy    =clamp(gs.energy    +(im.energy    ||0),0,10);
   gs.health    =clamp(gs.health    +(im.health    ||0),0,10);
@@ -152,6 +157,9 @@ function makeChoice(ch){
   const tt=ch.type==='positive'?'ok':ch.type==='negative'?'bad':'tip';
   showToast(ch.feedback||'',tt);
   gs.currentDay++;
+  
+  const showReceipt=gs.currentDay>7;
+  
   if(gs.currentDay>7){
     gs.currentDay=1;gs.currentWeek++;
     const allowanceThisWeek=gs.weeklyAllowance-gs.debt;
@@ -175,6 +183,13 @@ function makeChoice(ch){
     return;
   }
   updateUI();
+  
+  // Show weekly receipt if transitioning to next week
+  if(showReceipt){
+    setTimeout(()=>showWeeklyReceipt(gs.currentWeek-1), 800);
+    return; // Don't load next scenario yet
+  }
+  
   // Trigger money animation based on change
   const moneyEl=document.getElementById('moneyDisplay');
   if(gs.money<oldMoney){moneyEl.classList.add('loss');}
@@ -188,6 +203,8 @@ function updateUI(){
   document.getElementById('dayNum').textContent=gs.currentDay;
   const md=document.getElementById('moneyDisplay');
   md.textContent=gs.money;
+  // Update week/day label
+  document.getElementById('weekDayLabel').textContent=`Week ${gs.currentWeek}, Day ${gs.currentDay}`;
   setStat('energy',gs.energy,10);setStat('health',gs.health,10);
   setStat('friendship',gs.friendship,10);setStat('family',gs.family,10);
   setStat('grades',gs.grades,100);setStat('stress',gs.stress,10);
@@ -222,4 +239,44 @@ function updateDebtInfo(){
   }else{
     debtEl.classList.remove('show');
   }
+}
+
+// WEEKLY RECEIPT DISPLAY
+function showWeeklyReceipt(week){
+  // Calculate total spent this week
+  let totalSpentThisWeek=0;
+  gs.weeklyChoices.forEach(choice=>{
+    totalSpentThisWeek+=choice.cost;
+  });
+  
+  // Update receipt header
+  document.getElementById('receiptTitle').textContent=`Linggo ${week} - Gastos`;
+  document.getElementById('spentAmount').textContent='₱'+totalSpentThisWeek;
+  
+  // Populate receipt items
+  const itemsContainer=document.getElementById('receiptItems');
+  itemsContainer.innerHTML='';
+  if(gs.weeklyChoices.length>0){
+    gs.weeklyChoices.forEach(choice=>{
+      const item=document.createElement('div');
+      item.className='receipt-item';
+      item.innerHTML=`
+        <div class="receipt-item-name">${choice.title}</div>
+        <div class="receipt-item-cost">−₱${choice.cost}</div>
+      `;
+      itemsContainer.appendChild(item);
+    });
+  }else{
+    itemsContainer.innerHTML='<p style="text-align:center;color:#666;padding:20px;">Walang gastos ngayong linggo!</p>';
+  }
+  
+  // Show modal
+  document.getElementById('weeklyReceiptModal').classList.add('show');
+  
+  // Setup continue button
+  document.getElementById('continueReceipt').onclick=()=>{
+    document.getElementById('weeklyReceiptModal').classList.remove('show');
+    gs.weeklyChoices=[]; // Reset for next week
+    loadScenario();
+  };
 }

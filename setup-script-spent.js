@@ -44,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalDuration = maxDelay * 1000 + 1000 + 600;
     setTimeout(() => {
       setupForm.style.display = 'block';
+      
+      // Animate form fields sequentially
+      const formGroups = setupForm.querySelectorAll('.form-animate');
+      formGroups.forEach((group, idx) => {
+        const delay = idx * 0.8; // 0.8s between each field
+        group.style.animationDelay = delay + 's';
+        group.classList.add('form-animate');
+      });
+      
       setupForm.scrollIntoView({behavior: 'smooth', block: 'center'});
     }, totalDuration);
   });
