@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALLOWANCE — Laro ng Pera</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- SETUP -->
+  <div id="setupScreen" class="screen active">
+    <div class="setup-header">
+      <div class="kicker">Pinoy Life Simulator</div>
+      <h1><span class="peso">₱</span> ALLOWANCE</h1>
+      <p class="tagline">Kaya mo bang maabot ang Biyernes?</p>
+    </div>
+    <div class="setup-body">
+      <div class="form-group">
+        <label>Ano ang pangalan mo?</label>
+        <input type="text" id="playerName" placeholder="hal. Juan dela Cruz" maxlength="24">
+      </div>
+      <div class="form-group">
+        <label>Ilang taon ka na?</label>
+        <input type="number" id="playerAge" min="8" max="25" placeholder="Edad mo">
+      </div>
+      <div class="form-group">
+        <label>Anong Grade / Year ka?</label>
+        <select id="playerGrade">
+          <option value="">— Piliin mo —</option>
+          <option value="elem-lower">Grade 4–5 (Elementary)</option>
+          <option value="elem-upper">Grade 6 (Elementary)</option>
+          <option value="jhs-lower">Grade 7–8 (Junior High)</option>
+          <option value="jhs-upper">Grade 9–10 (Junior High)</option>
+          <option value="shs">Grade 11–12 (Senior High)</option>
+          <option value="college-1">1st Year College</option>
+          <option value="college-2">2nd–4th Year College</option>
+        </select>
+      </div>
+      <button class="btn-start" id="startBtn">SIMULAN NA ▶</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="screen">
+    <div class="game-topbar">
+      <span class="g-name" id="displayName"></span>
+      <span class="week-tag">Linggo <span id="weekNum">1</span> / <span id="weekTotal">4</span></span>
+    </div>
+    <div class="money-panel">
+      <div>
+        <div class="money-label">Natitirang Pera</div>
+        <div class="peso-big" id="moneyDisplay">₱0</div>
+      </div>
+      <div class="money-right">
+        <div class="money-label">Lingguhang Allowance</div>
+        <div class="money-sub" id="allowanceDisplay">₱0 / linggo</div>
+      </div>
+    </div>
+    <div class="stats-panel">
+      <div class="stats-grid">
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">⚡ Enerhiya</span><span class="stat-val" id="v-energy">10/10</span></div>
+          <div class="stat-bar"><div class="stat-fill s-energy" id="b-energy" style="width:100%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">❤️ Kalusugan</span><span class="stat-val" id="v-health">10/10</span></div>
+          <div class="stat-bar"><div class="stat-fill s-health" id="b-health" style="width:100%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">💕 Kaibigan</span><span class="stat-val" id="v-friendship">10/10</span></div>
+          <div class="stat-bar"><div class="stat-fill s-friendship" id="b-friendship" style="width:100%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">👨‍👩‍👧 Pamilya</span><span class="stat-val" id="v-family">10/10</span></div>
+          <div class="stat-bar"><div class="stat-fill s-family" id="b-family" style="width:100%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">📚 Grades</span><span class="stat-val" id="v-grades">85/100</span></div>
+          <div class="stat-bar"><div class="stat-fill s-grades" id="b-grades" style="width:85%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-top"><span class="stat-name">😰 Stress</span><span class="stat-val" id="v-stress">3/10</span></div>
+          <div class="stat-bar"><div class="stat-fill s-stress" id="b-stress" style="width:30%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-panel">
+      <div class="scen-loc" id="scenLoc">Paaralan</div>
+      <div class="scen-title" id="scenTitle">Sandali lang…</div>
+      <div class="scen-text" id="scenText"></div>
+    </div>
+    <div class="choices-panel" id="choicesPanel"></div>
+    <div class="day-footer">
+      <span class="day-text">Araw <span id="dayNum">1</span> ng 7</span>
+      <div class="day-dots" id="dayDots"></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen" class="screen">
+    <div class="result-header">
+      <div class="kicker">Isang Buwan Lumipas</div>
+      <h1 id="resultTitle">Swerte!</h1>
+      <p class="result-sub" id="resultSub"></p>
+    </div>
+    <div class="result-body">
+      <div class="grade-box">
+        <div class="g-label">Pangkalahatang Marka</div>
+        <div class="g-val" id="finalGradeDisplay">75%</div>
+      </div>
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="reflection" id="reflectionText"></div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Mga Payo para sa Susunod:</div>
+        <ul id="tipsList"></ul>
+      </div>
+      <button class="btn-replay" onclick="location.reload()">MAGLARO ULIT ↺</button>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
