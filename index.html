@@ -11,20 +11,50 @@
 <div id="app">
   <div id="setupScreen" class="screen active spent-style">
     <div class="spent-container">
-      <div class="spent-header">
-        <h1 class="spent-title">₱ ALLOWANCE</h1>
-        <h2 class="spent-subtitle">Maaari mo bang pamahalaan ang iyong pera?</h2>
+      <!-- TITLE SCREEN -->
+      <div id="titleScreen" class="title-screen-section active">
+        <div class="spent-header">
+          <h1 class="spent-title">₱ ALLOWANCE</h1>
+          <h2 class="spent-subtitle">Maaari mo bang pamahalaan ang iyong pera?</h2>
+        </div>
+        <button class="spent-btn-challenge" id="proceedBtn">MAGPATULOY ▶</button>
       </div>
-      
-      <div class="spent-context">
-        <p>Isang estudyante ka sa paaralan. Buwan-buwan ay tumatanggap ka ng allowance mula sa iyong magulang.</p>
-        <p>Pero maraming gastusin ang buhay.</p>
-        <p>Pagkain sa school canteen. Transportation. School projects. Gadgets na gusto mo. Mga kaibigan na gustong maglaro.</p>
-        <p>Ang iyong kalusugan, ang pag-aaral, ang pamilya at kaibigan — lahat ay importante.</p>
-        <p><strong>Kaya mo bang mag-manage ng pera, alagaan ang sarili mo, at manatiling masaya hanggang sa dulo ng buwan?</strong></p>
+
+      <!-- STORY & FORM SECTION -->
+      <div id="storyFormSection" class="story-form-section" style="display:none;">
+        <div class="spent-context" id="storyContext">
+          <p class="story-para">Isang estudyante ka sa paaralan. Linggo-linggo ay tumatanggap ka ng allowance mula sa iyong magulang.</p>
+          <p class="story-para">Pero maraming gastusin ang buhay.</p>
+          <p class="story-para">Pagkain sa school canteen. Transportation. School projects. Gadgets na gusto mo. Mga kaibigan na gustong maglaro.</p>
+          <p class="story-para">Ang iyong kalusugan, ang pag-aaral, ang pamilya at kaibigan — lahat ay importante.</p>
+          <p class="story-para"><strong>Kaya mo bang mag-manage ng pera, alagaan ang sarili mo, at manatiling masaya hanggang sa katapusan ng linggo?</strong></p>
+        </div>
+
+        <div class="spent-form" id="setupForm" style="display:none;">
+          <div class="form-group">
+            <label>Ano ang pangalan mo?</label>
+            <input type="text" id="playerName" placeholder="hal. Juan dela Cruz" maxlength="24">
+          </div>
+          <div class="form-group">
+            <label>Ilang taon ka na?</label>
+            <input type="number" id="playerAge" min="8" max="25" placeholder="Edad mo">
+          </div>
+          <div class="form-group">
+            <label>Anong Grade / Year ka?</label>
+            <select id="playerGrade">
+              <option value="">— Piliin mo —</option>
+              <option value="elem-lower">Grade 4–5 (Elementary)</option>
+              <option value="elem-upper">Grade 6 (Elementary)</option>
+              <option value="jhs-lower">Grade 7–8 (Junior High)</option>
+              <option value="jhs-upper">Grade 9–10 (Junior High)</option>
+              <option value="shs">Grade 11–12 (Senior High)</option>
+              <option value="college-1">1st Year College</option>
+              <option value="college-2">2nd–4th Year College</option>
+            </select>
+          </div>
+          <button class="btn-start" id="confirmBtn">SIMULAN NA ▶</button>
+        </div>
       </div>
-      
-      <button class="spent-btn-challenge" id="startBtn">TANGGAPIN ANG HAMON ▶</button>
       
       <div class="spent-menu-section">
         <button class="spent-btn-menu" id="menuBtn">⚙️ MENU</button>
@@ -32,31 +62,6 @@
           <button class="spent-menu-item" id="leaderboardBtn">🏆 LEADERBOARD</button>
           <button class="spent-menu-item" id="aboutBtn">ℹ️ TUNGKOL</button>
         </div>
-      </div>
-      
-      <div class="spent-form" id="setupForm" style="display:none;">
-        <div class="form-group">
-          <label>Ano ang pangalan mo?</label>
-          <input type="text" id="playerName" placeholder="hal. Juan dela Cruz" maxlength="24">
-        </div>
-        <div class="form-group">
-          <label>Ilang taon ka na?</label>
-          <input type="number" id="playerAge" min="8" max="25" placeholder="Edad mo">
-        </div>
-        <div class="form-group">
-          <label>Anong Grade / Year ka?</label>
-          <select id="playerGrade">
-            <option value="">— Piliin mo —</option>
-            <option value="elem-lower">Grade 4–5 (Elementary)</option>
-            <option value="elem-upper">Grade 6 (Elementary)</option>
-            <option value="jhs-lower">Grade 7–8 (Junior High)</option>
-            <option value="jhs-upper">Grade 9–10 (Junior High)</option>
-            <option value="shs">Grade 11–12 (Senior High)</option>
-            <option value="college-1">1st Year College</option>
-            <option value="college-2">2nd–4th Year College</option>
-          </select>
-        </div>
-        <button class="btn-start" id="confirmBtn">SIMULAN NA ▶</button>
       </div>
     </div>
   </div>

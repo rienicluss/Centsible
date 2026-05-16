@@ -17,13 +17,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // Challenge button - show form
-  const startBtn = document.getElementById('startBtn');
+  // Proceed button - show story
+  const proceedBtn = document.getElementById('proceedBtn');
+  const titleScreen = document.getElementById('titleScreen');
+  const storyFormSection = document.getElementById('storyFormSection');
+  const storyContext = document.getElementById('storyContext');
   const setupForm = document.getElementById('setupForm');
   
-  startBtn.addEventListener('click', () => {
-    setupForm.style.display = 'block';
-    setupForm.scrollIntoView({behavior: 'smooth', block: 'center'});
+  proceedBtn.addEventListener('click', () => {
+    // Hide title, show story section
+    titleScreen.style.display = 'none';
+    storyFormSection.style.display = 'block';
+    
+    // Animate story paragraphs with staggered reveal effect
+    const storyParas = storyContext.querySelectorAll('.story-para');
+    
+    let maxDelay = 0;
+    storyParas.forEach((para, idx) => {
+      const delay = idx * 1.1; // 1.1s between each paragraph reveal
+      para.style.animationDelay = delay + 's';
+      para.classList.add('story-animate');
+      maxDelay = Math.max(maxDelay, delay);
+    });
+    
+    // Show form after all story animations complete
+    const totalDuration = maxDelay * 1000 + 1000 + 600;
+    setTimeout(() => {
+      setupForm.style.display = 'block';
+      setupForm.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }, totalDuration);
   });
   
   // Leaderboard button
