@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALLOWANCE — Laro ng Pera</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div id="gameScreen" class="screen active spent-gameplay">
+    
+    <!-- TOP BAR: Money (left) and Day Counter (right) -->
+    <div class="game-top-bar">
+      <div class="money-display-container">
+        <span class="money-icon">₱</span>
+        <span class="money-value" id="moneyDisplay">0</span>
+        <span class="money-arrow">▼</span>
+      </div>
+      <div class="player-info">
+        <span id="displayName">Juan</span>
+      </div>
+      <div class="day-counter">
+        <span id="dayNum">1</span>/<span id="weekTotal">4</span>
+      </div>
+    </div>
+
+    <!-- SIDE PROGRESS BAR (right side vertical day dots) -->
+    <div class="day-progress-side" id="dayProgressSide"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="game-main-content">
+      
+      <!-- SCENARIO CARD -->
+      <div class="scenario-card">
+        <div class="scenario-location" id="scenLoc">Sa Paaralan</div>
+        <div class="scenario-title" id="scenTitle">Loading...</div>
+        <div class="scenario-text" id="scenText"></div>
+      </div>
+
+      <!-- CHOICES CONTAINER -->
+      <div id="choicesPanel" class="choices-container"></div>
+
+    </div>
+
+    <!-- MENU BUTTON (bottom left) -->
+    <button class="menu-btn" id="statsBtn">📊 STATS</button>
+    <!-- QUIT BUTTON (top-right) -->
+    <button class="quit-btn" id="quitBtn">❌ QUIT</button>
+    <!-- STATS MODAL/PANEL (hidden by default) -->
+    <div class="stats-panel" id="statsPanel">
+      <div class="stats-header">
+        <div class="stats-title">STATS</div>
+        <button class="stats-close" id="statsClose">✕</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-row">
+          <span class="stat-label">⚡ Energy</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-energy" id="b-energy" style="width:100%"></div></div>
+          <span class="stat-value" id="v-energy">10/10</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">❤️ Health</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-health" id="b-health" style="width:100%"></div></div>
+          <span class="stat-value" id="v-health">10/10</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">📚 Grades</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-grades" id="b-grades" style="width:85%"></div></div>
+          <span class="stat-value" id="v-grades">85/100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">💕 Friends</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-friendship" id="b-friendship" style="width:100%"></div></div>
+          <span class="stat-value" id="v-friendship">10/10</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">👨‍👩‍👧 Family</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-family" id="b-family" style="width:100%"></div></div>
+          <span class="stat-value" id="v-family">10/10</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">😰 Stress</span>
+          <div class="stat-bar-mini"><div class="stat-fill s-stress" id="b-stress" style="width:30%"></div></div>
+          <span class="stat-value" id="v-stress">3/10</span>
+        </div>
+      </div>
+      <button class="nanay-btn" id="nanayBtn">👩 Humingi sa Nanay (Assistance)</button>
+      <div class="debt-info" id="debtInfo"></div>
+    </div>
+
+    <!-- NANAY MODAL -->
+    <div class="nanay-modal" id="nanayModal">
+      <div class="nanay-modal-content">
+        <div class="nanay-header">
+          <h2>👩 Tulong mula sa Nanay</h2>
+          <button class="modal-close" id="nanayModalClose">✕</button>
+        </div>
+        <div class="nanay-body">
+          <p class="nanay-text">Nanay: "Anak, magkano ang kailangan mo? Pero tatanggihan ko ito sa susunod mong allowance!"</p>
+          <div class="input-group">
+            <label>Magkano ang humihingi mo?</label>
+            <input type="number" id="borrowAmount" placeholder="₱0" min="0" max="500">
+          </div>
+          <div class="warning-text">⚠️ Ito ay mababawas sa susunod mong linggo!</div>
+        </div>
+        <div class="nanay-footer">
+          <button class="btn-cancel" id="borrowCancel">Hindi, Salamat</button>
+          <button class="btn-borrow" id="borrowConfirm">Hinding-handa, Nanay!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIT CONFIRMATION MODAL -->
+    <div class="quit-modal" id="quitModal">
+      <div class="quit-modal-content">
+        <div class="quit-header">
+          <h2>⚠️ Umalis sa Laro?</h2>
+        </div>
+        <div class="quit-body">
+          <p>Sigurado ka na bang gusto mong umalis? Ang iyong progreso ay mawawala.</p>
+        </div>
+        <div class="quit-footer">
+          <button class="btn-continue" id="quitContinue">Magpatuloy pa rin</button>
+          <button class="btn-quit" id="quitConfirm">Oo, Umalis na</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="game-data.js"></script>
+<script src="game-script.js"></script>
+</body>
+</html>

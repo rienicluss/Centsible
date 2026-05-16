@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALLOWANCE — Paano Ito Gumagana</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div id="howItWorksScreen" class="screen active spent-how-it-works">
+    <div class="spent-container">
+      <div class="spent-header">
+        <h1 class="spent-title">Paano Ito Gumagana?</h1>
+      </div>
+      
+      <div class="how-section">
+        <div class="how-step">
+          <div class="step-number">1️⃣</div>
+          <div class="step-content">
+            <h3>Pumili ng Iyong Profile</h3>
+            <p>Bigyan kami ng iyong pangalan, edad, at grade level. Ang iyong grade ay makakasama ng iyong starting allowance at game duration.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="step-number">2️⃣</div>
+          <div class="step-content">
+            <h3>Harapin ang Mga Hamon</h3>
+            <p>Bawat araw, makakakuha ka ng bagong sitwasyon. Piliin ang iyong aksyon at makita kung paano ito makakaapekto sa iyong pera at kalusugan.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="step-number">3️⃣</div>
+          <div class="step-content">
+            <h3>I-manage ang Iyong Stats</h3>
+            <p>Bantayan ang anim na stats: Enerhiya, Kalusugan, Kaibigan, Pamilya, Grades, at Stress. Ang balanse ay susi sa tagumpay.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="step-number">4️⃣</div>
+          <div class="step-content">
+            <h3>Makakuha ng Allowance</h3>
+            <p>Tuwing linggo, makakatanggap ka ng fresh allowance. Gamitin ito nang matalino o makikita mo itong maubos!</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="step-number">5️⃣</div>
+          <div class="step-content">
+            <h3>Tapusin ang Laro</h3>
+            <p>Matapos ang 1-4 na linggo (depende sa iyong grade), makikita mo ang iyong final score at mga tip para sa susunod.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="how-section">
+        <h2 class="section-title">Ang Tatlong Key Stats na Dapat I-bantayan:</h2>
+        <div class="how-grid">
+          <div class="how-card">
+            <div class="card-icon">💰</div>
+            <div class="card-title">Pera</div>
+            <p>Ang pangunahing layunin. Kailangan mong magtipid at kumuha ng wise decisions.</p>
+          </div>
+          <div class="how-card">
+            <div class="card-icon">❤️</div>
+            <div class="card-title">Kalusugan</div>
+            <p>Kalusugan ay kayamanan. Alagaan ang iyong sarili at mga mahal sa buhay.</p>
+          </div>
+          <div class="how-card">
+            <div class="card-icon">📚</div>
+            <div class="card-title">Grades</div>
+            <p>Hindi malimutan ang pag-aaral. Grades ay importante para sa kinabukasan.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="how-section scoring-section">
+        <h2 class="section-title">Paano Kinukuha ang Score:</h2>
+        <p class="scoring-text">Ang iyong final score ay batay sa:</p>
+        <ul class="scoring-list">
+          <li><strong>💰 Money Management (20%):</strong> Pinapamahalaan mo ba ang iyong pera?</li>
+          <li><strong>📚 Academics (30%):</strong> Nakatuon ka ba sa pag-aaral?</li>
+          <li><strong>❤️ Wellness (30%):</strong> Malusog at masaya ba ang iyong stats?</li>
+          <li><strong>😰 Stress Control (20%):</strong> Kayang-kaya mo ba ang pressure?</li>
+        </ul>
+      </div>
+      
+      <div class="how-section">
+        <h2 class="section-title">Mga Score Tier:</h2>
+        <div class="tier-grid">
+          <div class="tier-card excellent">
+            <div class="tier-icon">🏆</div>
+            <div class="tier-name">Excellent</div>
+            <div class="tier-range">85-100%</div>
+          </div>
+          <div class="tier-card good">
+            <div class="tier-icon">👍</div>
+            <div class="tier-name">Good</div>
+            <div class="tier-range">65-84%</div>
+          </div>
+          <div class="tier-card improvement">
+            <div class="tier-icon">⚠️</div>
+            <div class="tier-name">Improvement</div>
+            <div class="tier-range">40-64%</div>
+          </div>
+          <div class="tier-card critical">
+            <div class="tier-icon">😬</div>
+            <div class="tier-name">Critical</div>
+            <div class="tier-range">&lt;40%</div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="spent-btn-challenge" onclick="window.location.href='index.html'" style="margin-top:30px">← BUMALIK</button>
+    </div>
+  </div>
+</div>
+
+<script src="game-data.js"></script>
+</body>
+</html>

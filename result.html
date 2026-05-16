@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALLOWANCE — Laro ng Pera</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div id="resultScreen" class="screen active spent-result">
+    <div class="spent-container">
+      <div class="result-header">
+        <h1 id="resultTitle" class="spent-title">Tapos na!</h1>
+        <p class="result-sub spent-subtitle" id="resultSub">Tingnan ang resulta...</p>
+      </div>
+      <div class="result-body">
+        <div class="grade-box">
+          <div class="g-label">Iyong Marka</div>
+          <div class="g-val" id="finalGradeDisplay">75%</div>
+        </div>
+        <div class="result-grid" id="resultGrid"></div>
+        <div class="reflection" id="reflectionText"></div>
+        <div class="tips-box">
+          <div class="tips-title">💡 Mga Leksyon para sa Iyo:</div>
+          <ul id="tipsList"></ul>
+        </div>
+        <button class="spent-btn-challenge" onclick="sessionStorage.clear();window.location.href='index.html'">MAGLARO ULIT ↺</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="game-data.js"></script>
+<script src="result-script.js"></script>
+</body>
+</html>
