@@ -6,6 +6,7 @@ const gs = {
   energy:10,health:10,friendship:10,family:10,grades:85,stress:3,
   totalSpent:0,
   debt:0,
+  savings:0,
   weeklyChoices:[],
 };
 
@@ -27,13 +28,16 @@ function initGameState(){
   document.getElementById('displayName').textContent=gs.playerName;
   document.getElementById('weekTotal').textContent=cfg.duration;
   
-  // Create day progress dots on the side
+  // Create day progress numbers on the side (always show 1-30)
   const sideBar=document.getElementById('dayProgressSide');
-  for(let i=0;i<cfg.duration*7;i++){
-    const dot=document.createElement('div');
-    dot.className='day-dot-side'+(i===0?' done':'');
-    dot.style.animationDelay=(0.4+i*0.05)+'s';
-    sideBar.appendChild(dot);
+  const totalDaysToShow=30;  // Always show 1-30
+  for(let i=0;i<totalDaysToShow;i++){
+    const dayNum=i+1;
+    const dayIndicator=document.createElement('div');
+    dayIndicator.className='day-dot-side'+(i===0?' done':'');
+    dayIndicator.textContent=dayNum;
+    dayIndicator.style.animationDelay=(0.4+i*0.05)+'s';
+    sideBar.appendChild(dayIndicator);
   }
   
   // Setup stats panel toggle
@@ -52,10 +56,24 @@ function initGameState(){
     }
   });
 
-  // Setup nanay button and modal
-  document.getElementById('nanayBtn').addEventListener('click',()=>{
-    document.getElementById('nanayModal').classList.add('show');
+  // Setup quit button in stats
+  document.getElementById('quitBtnStats').addEventListener('click',()=>{
+    document.getElementById('quitModal').classList.add('show');
   });
+
+  // Setup quick nanay button (sidebar)
+  if(document.getElementById('nanayQuickBtn')){
+    document.getElementById('nanayQuickBtn').addEventListener('click',()=>{
+      document.getElementById('nanayModal').classList.add('show');
+    });
+  }
+
+  // Setup quick ipon button (sidebar) - shows savings info
+  if(document.getElementById('iponQuickBtn')){
+    document.getElementById('iponQuickBtn').addEventListener('click',()=>{
+      showToast('💰 Ipon (Savings): ₱' + (gs.savings || 0), 'tip');
+    });
+  }
 
   document.getElementById('nanayModalClose').addEventListener('click',()=>{
     document.getElementById('nanayModal').classList.remove('show');
@@ -85,8 +103,8 @@ function initGameState(){
     }
   });
 
-  // Setup quit button and modal
-  document.getElementById('quitBtn').addEventListener('click',()=>{
+  // Setup quit button in stats and modal
+  document.getElementById('quitBtnStats').addEventListener('click',()=>{
     document.getElementById('quitModal').classList.add('show');
   });
 
@@ -200,11 +218,12 @@ function makeChoice(ch){
 
 // ─── UI ────────────────────────────────────────────────────
 function updateUI(){
-  document.getElementById('dayNum').textContent=gs.currentDay;
+  document.getElementById('dayNum').textContent=gs.currentWeek;
   const md=document.getElementById('moneyDisplay');
   md.textContent=gs.money;
   // Update week/day label
-  document.getElementById('weekDayLabel').textContent=`Week ${gs.currentWeek}, Day ${gs.currentDay}`;
+  const totalWeeks=gradeConfig[gs.playerGrade].duration;
+  document.getElementById('weekDayLabel').textContent=`WEEK ${gs.currentWeek}/${totalWeeks}`;
   setStat('energy',gs.energy,10);setStat('health',gs.health,10);
   setStat('friendship',gs.friendship,10);setStat('family',gs.family,10);
   setStat('grades',gs.grades,100);setStat('stress',gs.stress,10);

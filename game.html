@@ -25,12 +25,21 @@
         <span id="displayName">Juan</span>
       </div>
       <div class="day-counter">
-        <span id="dayNum">1</span>/<span id="weekTotal">4</span>
+        <span id="weekLabel">WEEK</span> <span id="dayNum">1</span>/<span id="weekTotal">4</span>
       </div>
     </div>
 
     <!-- SIDE PROGRESS BAR (right side vertical day dots) -->
     <div class="day-progress-side" id="dayProgressSide"></div>
+
+    <!-- NEED CASH SIDEBAR (left side) -->
+    <div class="need-cash-sidebar">
+      <div class="need-cash-header">Need Cash?</div>
+      <div class="need-cash-buttons">
+        <button class="need-cash-btn nanay-quick" id="nanayQuickBtn" title="Ask mom for money">👩 Nanay</button>
+        <button class="need-cash-btn ipon-quick" id="iponQuickBtn" title="Use your savings">💰 Ipon</button>
+      </div>
+    </div>
 
     <!-- MAIN CONTENT AREA -->
     <div class="game-main-content">
@@ -49,8 +58,7 @@
 
     <!-- MENU BUTTON (bottom left) -->
     <button class="menu-btn" id="statsBtn">📊 STATS</button>
-    <!-- QUIT BUTTON (top-right) -->
-    <button class="quit-btn" id="quitBtn">❌ QUIT</button>
+
     <!-- STATS MODAL/PANEL (hidden by default) -->
     <div class="stats-panel" id="statsPanel">
       <div class="stats-header">
@@ -89,7 +97,7 @@
           <span class="stat-value" id="v-stress">3/10</span>
         </div>
       </div>
-      <button class="nanay-btn" id="nanayBtn">👩 Humingi sa Nanay (Assistance)</button>
+      <button class="quit-btn-stats" id="quitBtnStats">❌ QUIT</button>
       <div class="debt-info" id="debtInfo"></div>
     </div>
 
