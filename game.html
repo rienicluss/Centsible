@@ -11,53 +11,58 @@
 <div id="app">
   <div id="gameScreen" class="screen active spent-gameplay">
     
-    <!-- TOP BAR: Money (left) and Day Counter (right) -->
+    <!-- TOP BAR: Money (left) and Exit Menu (right) -->
     <div class="game-top-bar">
-      <div class="money-display-container">
-        <div class="money-display-main">
-          <span class="money-icon">₱</span>
-          <span class="money-value" id="moneyDisplay">0</span>
-          <span class="money-arrow">▼</span>
+      <div class="money-display-main">
+        <div class="money-symbol">$</div>
+        <div class="money-display" id="moneyDisplay">0</div>
+      </div>
+      <div class="top-right-info">
+        <div class="player-name" id="displayName">Player</div>
+        <div class="day-indicator">
+          <span class="day-number" id="dayNum">1</span>
+          <span class="day-slash">/</span>
+          <span class="day-total" id="dayTotal">4</span>
         </div>
-        <div class="week-day-label" id="weekDayLabel">Week 1, Day 1</div>
-      </div>
-      <div class="player-info">
-        <span id="displayName">Juan</span>
-      </div>
-      <div class="day-counter">
-        <span id="weekLabel">WEEK</span> <span id="dayNum">1</span>/<span id="weekTotal">4</span>
       </div>
     </div>
 
-    <!-- SIDE PROGRESS BAR (right side vertical day dots) -->
-    <div class="day-progress-side" id="dayProgressSide"></div>
-
-    <!-- NEED CASH SIDEBAR (left side) -->
-    <div class="need-cash-sidebar">
-      <div class="need-cash-header">Need Cash?</div>
-      <div class="need-cash-buttons">
-        <button class="need-cash-btn nanay-quick" id="nanayQuickBtn" title="Ask mom for money">👩 Nanay</button>
-        <button class="need-cash-btn ipon-quick" id="iponQuickBtn" title="Use your savings">💰 Ipon</button>
-      </div>
-    </div>
-
-    <!-- MAIN CONTENT AREA -->
-    <div class="game-main-content">
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="spent-content-wrapper">
       
-      <!-- SCENARIO CARD -->
-      <div class="scenario-card">
+      <!-- LEFT SIDEBAR: Need Cash? -->
+      <div class="left-sidebar">
+        <div class="need-cash-header">Need Cash?</div>
+        <div class="need-cash-options">
+          <button class="need-cash-option" id="nanayQuickBtn" title="Ask mom for money">👩</button>
+          <button class="need-cash-option" id="iponQuickBtn" title="Use your savings">💰</button>
+          <button class="need-cash-option" id="statsBtn" title="View stats">📊</button>
+        </div>
+      </div>
+
+      <!-- CENTER: SCENARIO -->
+      <div class="center-content">
         <div class="scenario-location" id="scenLoc">Sa Paaralan</div>
         <div class="scenario-title" id="scenTitle">Loading...</div>
         <div class="scenario-text" id="scenText"></div>
+        
+        <!-- CHOICES -->
+        <div id="choicesPanel" class="choices-container"></div>
       </div>
 
-      <!-- CHOICES CONTAINER -->
-      <div id="choicesPanel" class="choices-container"></div>
+      <!-- RIGHT SIDEBAR: Optional Info -->
+      <div class="right-sidebar">
+        <div class="right-sidebar-item">
+          <div class="sidebar-label">Ipon:</div>
+          <div class="sidebar-value" id="savingsDisplay">₱0</div>
+        </div>
+        <div class="right-sidebar-item">
+          <div class="sidebar-label">Debt:</div>
+          <div class="sidebar-value debt-display" id="debtDisplay">₱0</div>
+        </div>
+      </div>
 
     </div>
-
-    <!-- MENU BUTTON (bottom left) -->
-    <button class="menu-btn" id="statsBtn">📊 STATS</button>
 
     <!-- STATS MODAL/PANEL (hidden by default) -->
     <div class="stats-panel" id="statsPanel">
@@ -109,16 +114,70 @@
           <button class="modal-close" id="nanayModalClose">✕</button>
         </div>
         <div class="nanay-body">
-          <p class="nanay-text">Nanay: "Anak, magkano ang kailangan mo? Pero tatanggihan ko ito sa susunod mong allowance!"</p>
+          <p class="nanay-text">Nanay: "Anak, magkano ang kailangan mo? Pero ibabawas ko ito sa susunod mong allowance!"</p>
           <div class="input-group">
-            <label>Magkano ang humihingi mo?</label>
+            <label>Magkano ang kai;angan mo?</label>
             <input type="number" id="borrowAmount" placeholder="₱0" min="0" max="500">
           </div>
-          <div class="warning-text">⚠️ Ito ay mababawas sa susunod mong linggo!</div>
+        
         </div>
         <div class="nanay-footer">
           <button class="btn-cancel" id="borrowCancel">Hindi, Salamat</button>
-          <button class="btn-borrow" id="borrowConfirm">Hinding-handa, Nanay!</button>
+          <button class="btn-borrow" id="borrowConfirm">salamat, Nanay!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IPON MODAL (Savings Deposit/Withdraw) -->
+    <div class="ipon-modal" id="iponModal">
+      <div class="ipon-modal-content">
+        <div class="ipon-header">
+          <h2>💰 Ipon</h2>
+          <button class="modal-close" id="iponModalClose">✕</button>
+        </div>
+        
+        <!-- Ipon Mode Selection -->
+        <div class="ipon-mode-selector" id="iponModeSelector">
+          <button class="mode-btn" id="iponDepositModeBtn">➕ Mag-ipon</button>
+          <button class="mode-btn" id="iponWithdrawModeBtn">➖ Kunin ang Ipon</button>
+        </div>
+        
+        <!-- Deposit Mode -->
+        <div id="iponDepositMode" class="ipon-mode-content">
+          <div class="ipon-body">
+            <p class="ipon-text">Magkano ang gusto mong i-save?</p>
+            <div class="ipon-info">
+              <p>💵 Available mo: <strong id="availableMoney">₱0</strong></p>
+              <p>🏦 Ipon mo na: <strong id="currentSavings">₱0</strong></p>
+            </div>
+            <div class="input-group">
+              <label>Magkano ang isasave mo? (₱)</label>
+              <input type="number" id="savingsAmount" placeholder="₱0" min="0" step="5">
+            </div>
+          </div>
+          <div class="ipon-footer">
+            <button class="btn-cancel" id="savingsCancel">Hindi, Salamat</button>
+            <button class="btn-save" id="savingsConfirm">I-save na! 💪</button>
+          </div>
+        </div>
+        
+        <!-- Withdraw Mode -->
+        <div id="iponWithdrawMode" class="ipon-mode-content" style="display:none;">
+          <div class="ipon-body">
+            <p class="ipon-text">Magkano ang gusto mong kunin?</p>
+            <div class="ipon-info">
+              <p>🏦 Ipon mo: <strong id="currentSavingsWithdraw">₱0</strong></p>
+              <p>💵 Available mo ngayon: <strong id="availableMoneyWithdraw">₱0</strong></p>
+            </div>
+            <div class="input-group">
+              <label>Magkano ang kunin mo? (₱)</label>
+              <input type="number" id="withdrawAmount" placeholder="₱0" min="0" step="5">
+            </div>
+          </div>
+          <div class="ipon-footer">
+            <button class="btn-cancel" id="withdrawCancel">Hindi, Salamat</button>
+            <button class="btn-withdraw" id="withdrawConfirm">Kunin na! 💸</button>
+          </div>
         </div>
       </div>
     </div>
@@ -140,6 +199,7 @@
           </div>
         </div>
         <div class="receipt-footer">
+          <button class="btn-save-quick" id="quickSave50Btn">💾 I-save ang ₱50</button>
           <button class="btn-continue-receipt" id="continueReceipt">Magpatuloy ▶</button>
         </div>
       </div>
@@ -149,10 +209,10 @@
     <div class="quit-modal" id="quitModal">
       <div class="quit-modal-content">
         <div class="quit-header">
-          <h2>⚠️ Umalis sa Laro?</h2>
+          <h2>Umalis sa Laro?</h2>
         </div>
         <div class="quit-body">
-          <p>Sigurado ka na bang gusto mong umalis? Ang iyong progreso ay mawawala.</p>
+          <p>Sigurado ka na bang gusto mong umalis? Ang iyong progress ay mawawala.</p>
         </div>
         <div class="quit-footer">
           <button class="btn-continue" id="quitContinue">Magpatuloy pa rin</button>

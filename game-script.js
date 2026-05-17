@@ -14,31 +14,32 @@ const gs = {
 function initGameState(){
   gs.playerName = sessionStorage.getItem('playerName') || '';
   gs.playerAge = parseInt(sessionStorage.getItem('playerAge')) || 0;
-  gs.playerGrade = sessionStorage.getItem('playerGrade') || 'jhs-lower';
+  
+  // NEW: Use custom allowance instead of grade-based
+  const customAllowance = parseInt(sessionStorage.getItem('playerAllowance')) || 100;
   
   if(!gs.playerName){
     window.location.href='index.html';
     return;
   }
   
-  const cfg=gradeConfig[gs.playerGrade];
-  gs.weeklyAllowance=cfg.weeklyAllowance;
-  gs.money=cfg.weeklyAllowance;
+  gs.weeklyAllowance = customAllowance;
+  gs.money = customAllowance;
+  // Set game duration to 4 weeks by default for custom allowance
+  const gameDuration = 4;
+  
+  // Assign grade based on allowance for scenario selection
+  if(customAllowance <= 50) gs.playerGrade = 'elem-lower';
+  else if(customAllowance <= 75) gs.playerGrade = 'elem-upper';
+  else if(customAllowance <= 100) gs.playerGrade = 'jhs-lower';
+  else if(customAllowance <= 150) gs.playerGrade = 'jhs-upper';
+  else if(customAllowance <= 200) gs.playerGrade = 'shs';
+  else gs.playerGrade = 'college-1';
   
   document.getElementById('displayName').textContent=gs.playerName;
-  document.getElementById('weekTotal').textContent=cfg.duration;
+  document.getElementById('dayTotal').textContent=gameDuration;
   
-  // Create day progress numbers on the side (always show 1-30)
-  const sideBar=document.getElementById('dayProgressSide');
-  const totalDaysToShow=30;  // Always show 1-30
-  for(let i=0;i<totalDaysToShow;i++){
-    const dayNum=i+1;
-    const dayIndicator=document.createElement('div');
-    dayIndicator.className='day-dot-side'+(i===0?' done':'');
-    dayIndicator.textContent=dayNum;
-    dayIndicator.style.animationDelay=(0.4+i*0.05)+'s';
-    sideBar.appendChild(dayIndicator);
-  }
+  // No more day progress dots - using minimal SPENT design
   
   // Setup stats panel toggle
   document.getElementById('statsBtn').addEventListener('click',()=>{
@@ -68,10 +69,32 @@ function initGameState(){
     });
   }
 
-  // Setup quick ipon button (sidebar) - shows savings info
+  // Setup quick ipon button (sidebar) - opens ipon modal with deposit/withdraw options
   if(document.getElementById('iponQuickBtn')){
     document.getElementById('iponQuickBtn').addEventListener('click',()=>{
-      showToast('💰 Ipon (Savings): ₱' + (gs.savings || 0), 'tip');
+      document.getElementById('iponModal').classList.add('show');
+      // Show deposit mode by default
+      showIponMode('deposit');
+      document.getElementById('availableMoney').textContent='₱'+(gs.money || 0);
+      document.getElementById('currentSavings').textContent='₱'+(gs.savings || 0);
+      document.getElementById('savingsAmount').value='';
+      
+      document.getElementById('currentSavingsWithdraw').textContent='₱'+(gs.savings || 0);
+      document.getElementById('availableMoneyWithdraw').textContent='₱'+(gs.money || 0);
+      document.getElementById('withdrawAmount').value='';
+    });
+  }
+  
+  // Ipon mode selector buttons
+  if(document.getElementById('iponDepositModeBtn')){
+    document.getElementById('iponDepositModeBtn').addEventListener('click',()=>{
+      showIponMode('deposit');
+    });
+  }
+  
+  if(document.getElementById('iponWithdrawModeBtn')){
+    document.getElementById('iponWithdrawModeBtn').addEventListener('click',()=>{
+      showIponMode('withdraw');
     });
   }
 
@@ -100,6 +123,64 @@ function initGameState(){
   document.getElementById('nanayModal').addEventListener('click',(e)=>{
     if(e.target.id==='nanayModal'){
       document.getElementById('nanayModal').classList.remove('show');
+    }
+  });
+
+  // Setup Ipon modal (Savings Deposit)
+  document.getElementById('iponModalClose').addEventListener('click',()=>{
+    document.getElementById('iponModal').classList.remove('show');
+  });
+
+  document.getElementById('savingsCancel').addEventListener('click',()=>{
+    document.getElementById('iponModal').classList.remove('show');
+    document.getElementById('savingsAmount').value='';
+  });
+
+  document.getElementById('savingsConfirm').addEventListener('click',()=>{
+    const amt=parseInt(document.getElementById('savingsAmount').value)||0;
+    if(amt>0){
+      if(amt > gs.money){
+        showToast('Kulang ang iyong pera! Available lang: ₱'+gs.money,'bad');
+        return;
+      }
+      gs.money-=amt;
+      gs.savings+=amt;
+      showToast('💰 Nag-ipon ka ng ₱'+amt+'! Total savings: ₱'+gs.savings,'ok');
+      document.getElementById('iponModal').classList.remove('show');
+      document.getElementById('savingsAmount').value='';
+      updateUI();
+    }else{
+      showToast('Maglagay ng amount!','bad');
+    }
+  });
+  
+  // Withdraw handlers
+  document.getElementById('withdrawCancel').addEventListener('click',()=>{
+    document.getElementById('iponModal').classList.remove('show');
+    document.getElementById('withdrawAmount').value='';
+  });
+
+  document.getElementById('withdrawConfirm').addEventListener('click',()=>{
+    const amt=parseInt(document.getElementById('withdrawAmount').value)||0;
+    if(amt>0){
+      if(amt > gs.savings){
+        showToast('Kulang ang ipon mo! Available lang: ₱'+gs.savings,'bad');
+        return;
+      }
+      gs.savings-=amt;
+      gs.money+=amt;
+      showToast('💸 Kunin mo ang ₱'+amt+'! Remaining savings: ₱'+gs.savings,'ok');
+      document.getElementById('iponModal').classList.remove('show');
+      document.getElementById('withdrawAmount').value='';
+      updateUI();
+    }else{
+      showToast('Maglagay ng amount!','bad');
+    }
+  });
+
+  document.getElementById('iponModal').addEventListener('click',(e)=>{
+    if(e.target.id==='iponModal'){
+      document.getElementById('iponModal').classList.remove('show');
     }
   });
 
@@ -183,7 +264,7 @@ function makeChoice(ch){
     const allowanceThisWeek=gs.weeklyAllowance-gs.debt;
     gs.money+=allowanceThisWeek;
     gs.debt=0;
-    const dur=gradeConfig[gs.playerGrade].duration;
+    const dur=4; // Always 4 weeks for custom allowance
     if(gs.currentWeek<=dur){
       if(allowanceThisWeek<gs.weeklyAllowance){
         setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisWeek+' (−₱'+(gs.weeklyAllowance-allowanceThisWeek)+' debt)','ok'),500);
@@ -193,7 +274,7 @@ function makeChoice(ch){
     }
   }
   if(gs.money<0){gs.stress=clamp(gs.stress+1,0,10);gs.health=clamp(gs.health-1,0,10);}
-  const duration=gradeConfig[gs.playerGrade].duration;
+  const duration=4; // Always 4 weeks for custom allowance
   if(gs.currentWeek>duration){
     // Save game state and navigate to result page
     sessionStorage.setItem('gameState', JSON.stringify(gs));
@@ -221,19 +302,15 @@ function updateUI(){
   document.getElementById('dayNum').textContent=gs.currentWeek;
   const md=document.getElementById('moneyDisplay');
   md.textContent=gs.money;
-  // Update week/day label
-  const totalWeeks=gradeConfig[gs.playerGrade].duration;
-  document.getElementById('weekDayLabel').textContent=`WEEK ${gs.currentWeek}/${totalWeeks}`;
+  
+  // Update sidebar info
+  document.getElementById('savingsDisplay').textContent='₱'+(gs.savings || 0);
+  document.getElementById('debtDisplay').textContent='₱'+(gs.debt || 0);
+  
+  // Update stats bars
   setStat('energy',gs.energy,10);setStat('health',gs.health,10);
   setStat('friendship',gs.friendship,10);setStat('family',gs.family,10);
   setStat('grades',gs.grades,100);setStat('stress',gs.stress,10);
-  // Update day progress side dots
-  const sideDots=document.querySelectorAll('.day-dot-side');
-  const currentDayTotal=gs.currentWeek*7-7+gs.currentDay;
-  sideDots.forEach((dot,i)=>{
-    if(i<currentDayTotal)dot.classList.add('done');
-    else dot.classList.remove('done');
-  });
 }
 
 function setStat(n,v,max){
@@ -292,10 +369,45 @@ function showWeeklyReceipt(week){
   // Show modal
   document.getElementById('weeklyReceiptModal').classList.add('show');
   
+  // Setup quick save ₱50 button
+  document.getElementById('quickSave50Btn').onclick=()=>{
+    if(gs.money >= 50){
+      gs.money -= 50;
+      gs.savings += 50;
+      showToast('💰 Na-save mo ang ₱50! Total savings: ₱'+gs.savings, 'ok');
+      updateUI();
+      // Re-render the receipt to show updated money
+      document.getElementById('quickSave50Btn').disabled = true;
+      document.getElementById('quickSave50Btn').textContent = '✓ Naka-save na ang ₱50';
+    }else{
+      showToast('❌ Kulang ang pera mo para mag-ipon ng ₱50', 'bad');
+    }
+  };
+  
   // Setup continue button
   document.getElementById('continueReceipt').onclick=()=>{
     document.getElementById('weeklyReceiptModal').classList.remove('show');
     gs.weeklyChoices=[]; // Reset for next week
     loadScenario();
   };
+}
+
+// SHOW IPON MODE (Deposit or Withdraw)
+function showIponMode(mode){
+  const depositMode=document.getElementById('iponDepositMode');
+  const withdrawMode=document.getElementById('iponWithdrawMode');
+  const depositBtn=document.getElementById('iponDepositModeBtn');
+  const withdrawBtn=document.getElementById('iponWithdrawModeBtn');
+  
+  if(mode==='deposit'){
+    depositMode.style.display='block';
+    withdrawMode.style.display='none';
+    depositBtn.classList.add('active');
+    withdrawBtn.classList.remove('active');
+  }else{
+    depositMode.style.display='none';
+    withdrawMode.style.display='block';
+    depositBtn.classList.remove('active');
+    withdrawBtn.classList.add('active');
+  }
 }
