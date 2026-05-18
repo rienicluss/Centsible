@@ -183,14 +183,17 @@ function calculateSpendingPersonality(gs){
   const extracurricular = spent.extracurricular || 0;
   const totalSpent = transport + food + social + extracurricular;
   
-  // Calculate percentages
-  const transportPct = totalSpent > 0 ? (transport / totalSpent) * 100 : 0;
-  const foodPct = totalSpent > 0 ? (food / totalSpent) * 100 : 0;
-  const socialPct = totalSpent > 0 ? (social / totalSpent) * 100 : 0;
-  const extraPct = totalSpent > 0 ? (extracurricular / totalSpent) * 100 : 0;
+  // Total allowance over 30 days
+  const totalBudget = gs.weeklyAllowance * 4; // ₱100 × 4 weeks = ₱400
+  
+  // Calculate percentages based on TOTAL BUDGET (not just spent)
+  const transportPct = totalBudget > 0 ? (transport / totalBudget) * 100 : 0;
+  const foodPct = totalBudget > 0 ? (food / totalBudget) * 100 : 0;
+  const socialPct = totalBudget > 0 ? (social / totalBudget) * 100 : 0;
+  const extraPct = totalBudget > 0 ? (extracurricular / totalBudget) * 100 : 0;
   
   // Calculate savings rate
-  const savingsRate = gs.weeklyAllowance * 4 > 0 ? (gs.savings / (gs.weeklyAllowance * 4)) * 100 : 0;
+  const savingsRate = totalBudget > 0 ? (gs.savings / totalBudget) * 100 : 0;
   
   // Calculate advance usage rate
   const advanceUsageCount = gs.parentalAdvanceCount || 0;
@@ -210,7 +213,7 @@ function calculateSpendingPersonality(gs){
     personality = {title: '🍔 Foodie Lover', subtitle: 'Money follows your stomach!', icon: '🍽️'};
   } else if(advanceUsageCount > 3){
     personality = {title: '🛍️ Big Spender', subtitle: 'Living life to the fullest!', icon: '💸'};
-  } else if(totalSpent < gs.weeklyAllowance * 4 * 0.3){
+  } else if(totalSpent < totalBudget * 0.3){
     personality = {title: '⛑️ Practical Planner', subtitle: 'You only spend what you need!', icon: '🎯'};
   }
   

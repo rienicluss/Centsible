@@ -563,4 +563,69 @@ function showToast(msg, type = 'tip') {
   setTimeout(() => { if (t) t.className = 'toast'; }, 2800);
 }
 
+// ─── DAILY SCENARIOS (One per day for 30 days) ──────────────────
+// Each day has a specific scenario with 2-3 choices
+const dailyScenarios = [
+  // Day 1
+  {day:1,loc:'Sa Kalsada',title:'Presyo ng Langis',text:'Balita sa umaga na tumaas ang presyo ng langis, kaya tumaas din ang pamasahe papuntang school. May quiz ka sa first subject. Ano ang gagawin mo?',choices:[{text:'Sumakay ng jeep para hindi ma-late',cost:20,impact:{stress:-1,energy:1}},{text:'Maglakad para makatipid, pero posibleng mapagod',cost:0,impact:{energy:-2,stress:1}}]},
+  // Day 2
+  {day:2,loc:'Sa School',title:'Mainit na Araw',text:'Mataas ang heat index at pinayuhan ang students na uminom ng tubig. Naubos ang dala mong tubig sa recess. Ano ang pipiliin mo?',choices:[{text:'Bumili ng malamig na tubig',cost:20,impact:{health:1}},{text:'Humingi ng refill sa water station',cost:0,impact:{health:0}}]},
+  // Day 3
+  {day:3,loc:'Sa Canteen',title:'Presyo ng Pagkain',text:'Dahil sa inflation, tumaas ang presyo ng pagkain sa canteen. Gutom ka na bago ang afternoon class. Ano ang bibilhin mo?',choices:[{text:'Full meal sa canteen',cost:50,impact:{energy:2,health:1}},{text:'Mas murang pagkain tulad ng siomai rice',cost:30,impact:{energy:1,health:0}},{text:'Kumain ng baon/snack na dala mula bahay',cost:0,impact:{energy:0,stress:1}}]},
+  // Day 4
+  {day:4,loc:'Sa School',title:'Niyaya ng Barkada',text:'Niyaya ka ng barkada kumain sa labas pagkatapos ng klase. May natitira ka pang pera, pero may school project ka rin ngayong linggo. Ano ang gagawin mo?',choices:[{text:'Sumama sa kanila',cost:70,impact:{friendship:2,stress:-1}},{text:'Tumanggi muna at mag-ipon para sa project',cost:0,impact:{friendship:-1,grades:1}}]},
+  // Day 5
+  {day:5,loc:'Sa School',title:'Printed Output',text:'Kailangan magpasa ng printed output para sa AP. Limited ang budget mo, pero may rubric ang teacher. Ano ang pipiliin mo?',choices:[{text:'Magpa-print ng maayos na output',cost:30,impact:{grades:2}},{text:'Gumawa ng sulat-kamay kung papayagan ng teacher',cost:0,impact:{grades:0,stress:1}}]},
+  // Day 6
+  {day:6,loc:'Sa Barangay',title:'Clean-up Drive',text:'May clean-up drive sa barangay bilang tugon sa pagbaha at baradong kanal. Inaanyayahan ang klase ninyo na makilahok. Ano ang gagawin mo?',choices:[{text:'Sumali at bumili ng pagkain pagkatapos',cost:30,impact:{family:1,stress:-1}},{text:'Sumali at magbaon na lang',cost:0,impact:{family:1,stress:-1}},{text:'Hindi sumali',cost:0,impact:{family:-1}}]},
+  // Day 7
+  {day:7,loc:'Sa Bahay',title:'Nasira ang Bag',text:'Nasira ang zipper ng bag mo. Kailangan mo pa itong gamitin sa susunod na linggo. Ano ang mas praktikal na desisyon?',choices:[{text:'Bumili agad ng bagong bag',cost:100,impact:{stress:-1}},{text:'Ipaayos o tahiin muna',cost:20,impact:{stress:0}}]},
+  // Day 8
+  {day:8,loc:'Sa Kalsada',title:'Walang Jeep',text:'May kakulangan sa fuel kaya walang jeep sa ruta ninyo. May attendance checking sa first period. Ano ang gagawin mo?',choices:[{text:'Sumakay ng tricycle',cost:50,impact:{stress:-1}},{text:'Maglakad nang mas maaga',cost:0,impact:{energy:-2,stress:1}}]},
+  // Day 9
+  {day:9,loc:'Sa School',title:'Meryenda',text:'Tumaas ang presyo ng meryenda sa school dahil sa pagtaas ng presyo ng bilihin. Gutom ka pero nagtitipid ka. Ano ang pipiliin mo?',choices:[{text:'Bumili ng karaniwang meryenda',cost:18,impact:{energy:1}},{text:'Pumili ng mas murang pagkain',cost:12,impact:{energy:0}},{text:'Kumain ng baon o maghintay sa bahay',cost:0,impact:{energy:-1,stress:1}}]},
+  // Day 10
+  {day:10,loc:'Sa School',title:'Bagyo sa Ibang Lugar',text:'May bagyo sa ibang lugar kaya naapektuhan ang supply ng gulay, isda, at bigas. Mas mahal ang pagkain sa paligid ng school. Ano ang gagawin mo?',choices:[{text:'Bumili pa rin ng pagkain sa labas',cost:30,impact:{health:0}},{text:'Magtipid at kumain ng baon/simple meal',cost:0,impact:{health:-1,stress:1}}]},
+  // Day 11
+  {day:11,loc:'Sa School',title:'Kaibigan na Walang Baon',text:'Napansin mong walang baon ang kaibigan mo dahil kinapos ang budget nila sa bahay. May sarili ka ring kailangang pagkasyahin. Ano ang gagawin mo?',choices:[{text:'Ibigay ang buong baon mo',cost:30,impact:{friendship:2,family:1}},{text:'I-share ang meryenda mo',cost:15,impact:{friendship:1}},{text:'Tulungan siyang humanap ng ibang paraan',cost:0,impact:{friendship:1}}]},
+  // Day 12
+  {day:12,loc:'Sa School',title:'Activity Fee',text:'May school activity fee na kailangan para makasali sa isang performance task. Kulang ang pera mo ngayon. Ano ang gagawin mo?',choices:[{text:'Magbayad mula sa ipon',cost:50,impact:{grades:2,stress:-1}},{text:'Humingi ng parental advance',cost:50,impact:{grades:2,debt:50}},{text:'Hindi sumali at tanggapin ang epekto sa grade',cost:0,impact:{grades:-5}}]},
+  // Day 13
+  {day:13,loc:'Sa Tindahan',title:'Damit para sa Presentation',text:'Kailangan mo ng presentable na damit para sa school presentation. Hindi naman kailangan branded. Ano ang pipiliin mo?',choices:[{text:'Bumili ng brand new',cost:80,impact:{stress:-1,grades:1}},{text:'Bumili sa ukay-ukay',cost:40,impact:{stress:0,grades:1}},{text:'Gumamit ng malinis na damit na mayroon ka na',cost:0,impact:{stress:1,grades:0}}]},
+  // Day 14
+  {day:14,loc:'Sa Barangay',title:'Ambagan para sa Drainage',text:'May ambagan sa barangay para sa drainage project upang maiwasan ang pagbaha. Estudyante ka pa lang pero gusto mong tumulong. Ano ang gagawin mo?',choices:[{text:'Magbigay ng abot-kayang ambag',cost:20,impact:{family:1}},{text:'Tumulong sa paglilinis o information drive',cost:0,impact:{family:1}}]},
+  // Day 15
+  {day:15,loc:'Sa Tindahan',title:'Notebook',text:'Kailangan mong bumili ng notebook para sa bagong topic. May imported at local brand sa tindahan. Ano ang pipiliin mo?',choices:[{text:'Imported notebook',cost:45,impact:{grades:0}},{text:'Local notebook na mas mura',cost:25,impact:{grades:0}}]},
+  // Day 16
+  {day:16,loc:'Sa Bahay',title:'Brownout',text:'Nag-brownout sa lugar ninyo at kailangan mong tapusin ang assignment. Ano ang gagawin mo?',choices:[{text:'Pumunta sa coffee shop para may ilaw at internet',cost:60,impact:{grades:2}},{text:'Gumamit ng rechargeable lamp/kandila at offline notes',cost:10,impact:{grades:1}}]},
+  // Day 17
+  {day:17,loc:'Sa School',title:'Walang Tubig',text:'Walang tubig sa school water station. Mainit ang panahon at kailangan mong uminom. Ano ang gagawin mo?',choices:[{text:'Bumili ng mineral water',cost:40,impact:{health:1}},{text:'Humingi ng tubig sa adviser/clinic kung available',cost:0,impact:{health:0}}]},
+  // Day 18
+  {day:18,loc:'Sa Bahay',title:'Text Scam',text:'May natanggap kang text na nanalo ka raw ng premyo pero kailangan munang magpadala ng pera. Ano ang gagawin mo?',choices:[{text:'Magbayad dahil baka totoo',cost:50,impact:{stress:2}},{text:'I-ignore at i-report sa nakatatanda',cost:0,impact:{stress:-1}}]},
+  // Day 19
+  {day:19,loc:'Sa School',title:'Donation Drive',text:'May lindol sa ibang lugar at may donation drive sa school. Gusto mong tumulong pero limitado ang budget mo. Ano ang gagawin mo?',choices:[{text:'Mag-donate ng pera',cost:30,impact:{family:1,stress:-1}},{text:'Tumulong sa pag-pack o magbigay ng gamit na mayroon ka',cost:0,impact:{family:1,stress:-1}}]},
+  // Day 20
+  {day:20,loc:'Sa Internet',title:'Flash Sale',text:'May flash sale online ng item na gusto mo, pero hindi mo ito kailangan sa school. Ano ang gagawin mo?',choices:[{text:'Bumili habang sale',cost:80,impact:{stress:-1}},{text:'I-save ang pera para sa mas mahalagang gastusin',cost:0,impact:{stress:0,savings:1}}]},
+  // Day 21
+  {day:21,loc:'Sa Barangay',title:'Feeding Program',text:'May feeding program sa barangay at kailangan ng volunteers. May konting ambagan para sa pagkain. Ano ang gagawin mo?',choices:[{text:'Sumali at mag-ambag',cost:20,impact:{family:1}},{text:'Sumali bilang volunteer kahit walang ambag na pera',cost:0,impact:{family:1}}]},
+  // Day 22
+  {day:22,loc:'Sa School',title:'Libreng Pagkain',text:'May kandidatong namimigay ng libreng pagkain malapit sa school. Sinasabi ng iba na tanggapin na lang dahil libre naman. Ano ang gagawin mo?',choices:[{text:'Tanggapin ang pagkain',cost:0,impact:{stress:0}},{text:'Tumanggi dahil maaaring may kaugnayan ito sa vote buying',cost:0,impact:{stress:0}}]},
+  // Day 23
+  {day:23,loc:'Sa School',title:'Masama ang Pakiramdam',text:'Sumama ang pakiramdam mo habang nasa school. May quiz pa sa hapon. Ano ang mas responsable mong gagawin?',choices:[{text:'Bumili ng gamot/tubig at pumunta sa clinic',cost:15,impact:{health:2,stress:-1}},{text:'Magtiis at ituloy ang klase kahit masama ang pakiramdam',cost:0,impact:{health:-2,stress:2}}]},
+  // Day 24
+  {day:24,loc:'Sa School',title:'Eco Project',text:'May eco project sa school tungkol sa waste reduction. Kailangan ng materials para sa output. Ano ang pipiliin mo?',choices:[{text:'Bumili ng bagong materials',cost:40,impact:{grades:2}},{text:'Gumamit ng recycled materials',cost:0,impact:{grades:1}}]},
+  // Day 25
+  {day:25,loc:'Sa School',title:'Uso ng Bagong Tumbler',text:'Uso sa klase ang bagong tumbler. May luma ka pa pero may sira ang takip. Ano ang gagawin mo?',choices:[{text:'Bumili ng bago gamit ang parental advance',cost:100,impact:{debt:100}},{text:'Ayusin ang lumang tumbler',cost:10,impact:{stress:0}},{text:'Gamitin muna ang mayroon ka',cost:0,impact:{stress:1}}]},
+  // Day 26
+  {day:26,loc:'Sa School',title:'Optional Field Trip',text:'May optional field trip. Makakatulong ito sa learning experience, pero malaki ang gastos. Ano ang gagawin mo?',choices:[{text:'Sumama gamit ang sariling ipon',cost:80,impact:{grades:2,stress:-1}},{text:'Humingi ng parental advance',cost:80,impact:{grades:2,stress:-1,debt:80}},{text:'Hindi sumama at gumawa ng alternative activity',cost:0,impact:{grades:0}}]},
+  // Day 27
+  {day:27,loc:'Sa Kalsada',title:'Leftover Food',text:'May natirang pagkain sa bahay na puwede mong baunin. Pero gusto mong bumili sa labas kasama ang classmates. Ano ang gagawin mo?',choices:[{text:'Baunin ang leftover food',cost:0,impact:{friendship:-1,energy:0}},{text:'Bumili ng pagkain sa labas',cost:35,impact:{friendship:1,energy:1}}]},
+  // Day 28
+  {day:28,loc:'Sa Mall',title:'Mall Outing',text:'Inaya ka ng kaibigan mo sa mall pagkatapos ng klase. May natitira kang pera, pero malapit na ang katapusan ng buwan. Ano ang gagawin mo?',choices:[{text:'Sumama at gumastos',cost:50,impact:{friendship:1,stress:-1}},{text:'Tumanggi muna at unahin ang ipon',cost:0,impact:{friendship:-1,savings:1}}]},
+  // Day 29
+  {day:29,loc:'Sa School',title:'Walang Baon',text:'Bawal lumabas for lunch dahil sa school safety policy. Wala kang dalang baon. Ano ang bibilhin mo sa school?',choices:[{text:'Canteen meal',cost:50,impact:{energy:1}},{text:'Mas murang snacks pero sapat para makaraos',cost:20,impact:{energy:0}}]},
+  // Day 30
+  {day:30,loc:'Sa School',title:'School Merch',text:'May binebentang school merch bilang souvenir. Last day na ng challenge at makikita na ang final savings mo. Ano ang pipiliin mo?',choices:[{text:'Bilhin ang merch kahit maubos ang natitirang pera',costAll:true,impact:{stress:-1}},{text:'I-save ang natitirang pera',cost:0,impact:{stress:0,savings:1}}]},
+];
+
 function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }

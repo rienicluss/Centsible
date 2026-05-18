@@ -98,20 +98,6 @@ function setupAutoAdvance() {
     });
   }
   
-  // Setup menu buttons
-  const leaderboardBtn = document.getElementById('leaderboardBtn');
-  if(leaderboardBtn){
-    leaderboardBtn.onclick = () => {
-      window.location.href = 'leaderboard.html';
-    };
-  }
-  
-  const aboutBtn = document.getElementById('aboutBtn');
-  if(aboutBtn){
-    aboutBtn.onclick = () => {
-      window.location.href = 'how-it-works.html';
-    };
-  }
 }
 
 function submitSetupForm() {
@@ -148,18 +134,29 @@ function toggleMenu() {
   return false;
 }
 
+function setupMenuButtons() {
+  const leaderboardBtn = document.getElementById('leaderboardBtn');
+  if(leaderboardBtn){
+    leaderboardBtn.addEventListener('click', function() {
+      window.location.href = 'leaderboard.html';
+    });
+  }
+  
+  const howtoBtn = document.getElementById('howtoBtn');
+  if(howtoBtn){
+    howtoBtn.addEventListener('click', function() {
+      window.location.href = 'how-it-works.html';
+    });
+  }
+}
+
 // Initialize on page load
-(function() {
-  function init() {
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', function() {
     sessionStorage.removeItem('gameState');
-  }
-  
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  }else{
-    init();
-  }
-  
-  setTimeout(init, 100);
-})();
-});
+    setupMenuButtons();
+  });
+}else{
+  sessionStorage.removeItem('gameState');
+  setupMenuButtons();
+}

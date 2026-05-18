@@ -15,6 +15,7 @@ const gs = {
   weeklyBigEvents:{},
   usedBigEvents:[],
   dayChoiceCount:0, // Track choices within a day (0=commute, 1=lunch, 2=event)
+  mondayAllowanceGiven:{}, // Track which Monday days already received allowance (to prevent double-adding on refresh)
 };
 
 // Initialize game state from session storage
@@ -57,6 +58,7 @@ function initGameState(){
   
   gs.weeklyAllowance = customAllowance;
   gs.money = customAllowance;
+  gs.mondayAllowanceGiven[1] = true; // Mark Day 1 allowance as given (initialized with full amount)
   // Game duration: 30 days. Allowance given on Mondays (Days 1, 8, 15, 22, 29)
   const gameDuration = 30;
   
@@ -278,19 +280,16 @@ function showBigEventModal(event){
       showToast('✅ Bayad mo na! ' + event.title, 'ok');
       closeBigEventModal();
       setTimeout(() => {
-        gs.dayChoiceCount++;
-        if(gs.dayChoiceCount >= 3) {
-          gs.dayChoiceCount = 0;
-          gs.currentDay++;
-          // Check if new day is a Monday
-          if([8,15,22,29].includes(gs.currentDay)){
-            showMondayReset();
-            return;
-          }
-        }
+        gs.currentDay++;
         updateUI();
         sessionStorage.setItem('gameState', JSON.stringify(gs));
-        loadScenario();
+        if([8,15,22,29].includes(gs.currentDay)){
+          showMondayReset();
+        } else if(gs.currentDay > 30){
+          window.location.href='result.html';
+        } else {
+          loadScenario();
+        }
       }, 500);
     } else {
       showToast('Kulang ang pera mo! Need ₱' + costAmount, 'bad');
@@ -308,19 +307,16 @@ function showBigEventModal(event){
     showToast('💵 Parental Advance: ₱' + costAmount + ' (deduct sa next Monday)', 'tip');
     closeBigEventModal();
     setTimeout(() => {
-      gs.dayChoiceCount++;
-      if(gs.dayChoiceCount >= 3) {
-        gs.dayChoiceCount = 0;
-        gs.currentDay++;
-        // Check if new day is a Monday
-        if([8,15,22,29].includes(gs.currentDay)){
-          showMondayReset();
-          return;
-        }
-      }
+      gs.currentDay++;
       updateUI();
       sessionStorage.setItem('gameState', JSON.stringify(gs));
-      loadScenario();
+      if([8,15,22,29].includes(gs.currentDay)){
+        showMondayReset();
+      } else if(gs.currentDay > 30){
+        window.location.href='result.html';
+      } else {
+        loadScenario();
+      }
     }, 500);
   };
   
@@ -330,19 +326,16 @@ function showBigEventModal(event){
     showToast('⚠️ Skipped. Grades -5', 'bad');
     closeBigEventModal();
     setTimeout(() => {
-      gs.dayChoiceCount++;
-      if(gs.dayChoiceCount >= 3) {
-        gs.dayChoiceCount = 0;
-        gs.currentDay++;
-        // Check if new day is a Monday
-        if([8,15,22,29].includes(gs.currentDay)){
-          showMondayReset();
-          return;
-        }
-      }
+      gs.currentDay++;
       updateUI();
       sessionStorage.setItem('gameState', JSON.stringify(gs));
-      loadScenario();
+      if([8,15,22,29].includes(gs.currentDay)){
+        showMondayReset();
+      } else if(gs.currentDay > 30){
+        window.location.href='result.html';
+      } else {
+        loadScenario();
+      }
     }, 500);
   };
   
@@ -365,6 +358,22 @@ function setupBigEventModalHandlers(){
 }
 function showMondayReset(){
   const week = Math.ceil(gs.currentDay / 7);
+  
+  // MONDAY ALLOWANCE DELIVERY: ₱100 minus debt, then add to current money
+  // BUT: Skip allowance on Day 1 (already initialized with ₱100)
+  // AND: Only add if not already processed (prevents double-adding on refresh)
+  if(gs.currentDay > 1 && !gs.mondayAllowanceGiven[gs.currentDay]){
+    let allowanceAfterDebt = gs.weeklyAllowance; // ₱100
+    
+    if(gs.debt > 0){
+      allowanceAfterDebt = gs.weeklyAllowance - gs.debt; // ₱100 - debt
+      gs.debt = 0; // Clear the debt after payment
+    }
+    
+    gs.money += allowanceAfterDebt; // Add net allowance to current money
+    gs.mondayAllowanceGiven[gs.currentDay] = true; // Mark this Monday as processed
+  }
+  
   document.getElementById('mondayWeekNum').textContent = week;
   document.getElementById('mondayBalance').textContent = '₱' + gs.money;
   
@@ -386,7 +395,8 @@ function showMondayReset(){
   
   document.getElementById('mondayReadyBtn').onclick = () => {
     document.getElementById('mondayResetModal').classList.remove('show');
-    gs.dayChoiceCount = 0;
+    updateUI();
+    sessionStorage.setItem('gameState', JSON.stringify(gs));
     loadScenario();
   };
 }
@@ -426,27 +436,16 @@ function getRandomSocialEvent(){
 // ─── SCENARIO LOADING WITH DAILY STRUCTURE ─────────────────
 let usedIdx=[];
 function loadScenario(){
-  let scenario;
+  // Load the daily scenario for the current day
+  const dayIndex = gs.currentDay - 1; // Days 1-30 map to indices 0-29
   
-  // Structure the daily cycle: Commute -> Lunch -> Random Event
-  if(gs.dayChoiceCount === 0){
-    // Morning: Transport choice
-    scenario = getScenarioByCategory('transport');
-  } else if(gs.dayChoiceCount === 1){
-    // Lunch: Food choice
-    scenario = getScenarioByCategory('food');
-  } else {
-    // Evening: Random event or big event
-    const week = Math.ceil(gs.currentDay / 7);
-    if(gs.weeklyBigEvents[week] && gs.weeklyBigEvents[week].length > 0 && Math.random() < 0.4){
-      // 40% chance to trigger a big event
-      const bigEvent = gs.weeklyBigEvents[week].shift();
-      showBigEventModal(bigEvent);
-      return;
-    }
-    scenario = getRandomSocialEvent();
+  if(dayIndex >= dailyScenarios.length){
+    // Game over - reached Day 31
+    endGame();
+    return;
   }
   
+  const scenario = dailyScenarios[dayIndex];
   displayScenario(scenario);
 }
 
@@ -458,88 +457,122 @@ function displayScenario(sc){
   // Add staggered animation to buttons
   let delay=0;
   sc.choices.forEach(ch=>{
-    // Attach scenario category to choice
-    ch.category = sc.category;
     const btn=document.createElement('button');
-    btn.className='choice-btn-spent '+ch.type;btn.textContent=ch.text;
+    btn.className='choice-btn-spent '+ch.type;
+    
+    // Format button text with cost if available
+    let btnText = ch.text;
+    if(ch.costAll){
+      btnText += ' (spend all)';
+    } else if(ch.cost !== undefined && ch.cost > 0){
+      btnText += ' (−₱' + ch.cost + ')';
+    } else if(ch.cost === 0 || ch.cost === undefined){
+      // No cost or free option
+      if(ch.text.indexOf('−₱') === -1 && ch.text.indexOf('save') === -1){
+        // Only add if not already mentioned in text
+      }
+    }
+    
+    btn.textContent = btnText;
     btn.style.animationDelay=(0.4+delay*0.1)+'s';
-    btn.onclick=()=>makeChoice(ch);panel.appendChild(btn);
+    btn.onclick=()=>makeChoice(ch);
+    panel.appendChild(btn);
     delay++;
   });
+}
+
+// Generate feedback text based on choice impacts
+function generateFeedback(ch, costAmount){
+  if(ch.feedback) return ch.feedback; // Use explicit feedback if provided
+  
+  const im = ch.impact || {};
+  const messages = [];
+  
+  if(costAmount > 0) messages.push('−₱' + costAmount);
+  if(im.energy < 0) messages.push('napagod');
+  if(im.energy > 0) messages.push('nag-energize');
+  if(im.health < 0) messages.push('nabawasan ang lakas');
+  if(im.health > 0) messages.push('naging healthy');
+  if(im.stress < 0) messages.push('nag-relax');
+  if(im.stress > 0) messages.push('nag-stress');
+  if(im.friendship < 0) messages.push('naging awkward ang friendships');
+  if(im.friendship > 0) messages.push('mas lapit sa friends');
+  if(im.family < 0) messages.push('nag-alala ang pamilya');
+  if(im.family > 0) messages.push('masaya ang pamilya');
+  if(im.grades < 0) messages.push('bumaba ang grades');
+  if(im.grades > 0) messages.push('tumaas ang grades');
+  if(im.savings > 0) messages.push('nag-ipon');
+  
+  return messages.length > 0 ? messages.join(' • ') : '';
 }
 
 // ─── CHOICE ────────────────────────────────────────────────
 function makeChoice(ch){
   document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=true);
   const oldMoney=gs.money;
-  const costAmount=Math.round(gs.weeklyAllowance * (ch.costScale || 0));
-  gs.money-=costAmount;
-  if(costAmount>0){
-    gs.totalSpent+=costAmount;
-    // Track choice for daily record
-    gs.dailyChoices.push({title:ch.text, cost:costAmount, day:gs.currentDay, category:ch.category});
-    // Track by category for spending personality
-    const cat = ch.category || 'other';
-    gs.spentByCategory[cat] = (gs.spentByCategory[cat] || 0) + costAmount;
-  }
-  const im=ch.impact;
-  gs.energy    =clamp(gs.energy    +(im.energy    ||0),0,10);
-  gs.health    =clamp(gs.health    +(im.health    ||0),0,10);
-  gs.friendship=clamp(gs.friendship+(im.friendship||0),0,10);
-  gs.family    =clamp(gs.family    +(im.family    ||0),0,10);
-  gs.grades    =clamp(gs.grades    +(im.grades    ||0),0,100);
-  gs.stress    =clamp(gs.stress    +(im.stress    ||0),0,10);
-  const tt=ch.type==='positive'?'ok':ch.type==='negative'?'bad':'tip';
-  showToast(ch.feedback||'',tt);
   
-  // Increment daily choice counter
-  gs.dayChoiceCount++;
-  
-  // After 3 choices (commute, lunch, event), move to next day
-  if(gs.dayChoiceCount >= 3){
-    gs.dayChoiceCount = 0;
-    gs.currentDay++;
-    
-    // Check if today is a Monday (Days 1, 8, 15, 22, 29) - allowance delivery day
-    const isMondayAllowanceDay=[1,8,15,22,29].includes(gs.currentDay);
-    
-    if(gs.currentDay>1 && isMondayAllowanceDay){
-      // Deliver Monday allowance (minus any debt from parental advance)
-      const allowanceThisMonday=gs.weeklyAllowance-gs.debt;
-      gs.money+=allowanceThisMonday;
-      if(gs.debt>0){
-        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisMonday+' (−₱'+(gs.weeklyAllowance-allowanceThisMonday)+' parental advance)','ok'),500);
-      }else{
-        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisMonday+' baon','ok'),500);
-      }
-      gs.debt=0; // Debt cleared after deduction
-    }
+  // Handle cost calculation - support both old costScale and new direct cost
+  let costAmount = 0;
+  if(ch.costAll){
+    // Special case: spend all remaining money
+    costAmount = gs.money;
+  } else if(ch.cost !== undefined){
+    // Direct cost amount from daily scenarios
+    costAmount = ch.cost;
+  } else if(ch.costScale !== undefined){
+    // Old system: costScale as percentage of allowance
+    costAmount = Math.round(gs.weeklyAllowance * ch.costScale);
   }
+  
+  gs.money -= costAmount;
+  if(costAmount > 0){
+    gs.totalSpent += costAmount;
+  }
+  // Track ALL choices (even free ones) for daily record in weekly receipt
+  gs.dailyChoices.push({title:ch.text, cost:costAmount, day:gs.currentDay});
+  
+  const im = ch.impact || {};
+  gs.energy    = clamp(gs.energy    + (im.energy    || 0), 0, 10);
+  gs.health    = clamp(gs.health    + (im.health    || 0), 0, 10);
+  gs.friendship = clamp(gs.friendship + (im.friendship || 0), 0, 10);
+  gs.family    = clamp(gs.family    + (im.family    || 0), 0, 10);
+  gs.grades    = clamp(gs.grades    + (im.grades    || 0), 0, 100);
+  gs.stress    = clamp(gs.stress    + (im.stress    || 0), 0, 10);
+  if(im.savings) gs.savings = (gs.savings || 0) + (im.savings || 0);
+  if(ch.debt) gs.debt = (gs.debt || 0) + ch.debt;
+  
+  // Generate and show feedback based on impacts
+  const feedback = generateFeedback(ch, costAmount);
+  const tt = (im.stress && im.stress > 0) ? 'bad' : (im.stress && im.stress < 0) ? 'ok' : 'tip';
+  showToast(feedback, tt);
+  
+  // Move to next day after each choice (1 question per day)
+  gs.currentDay++;
   
   if(gs.money<0){
     gs.stress=clamp(gs.stress+1,0,10);
     gs.health=clamp(gs.health-1,0,10);
   }
   
-  // Check if it's end of week (Days 7, 14, 21, 28) - show weekly receipt
-  const showReceipt=[7,14,21,28].includes(gs.currentDay);
-  
   updateUI();
   // Save current game state after each choice
   sessionStorage.setItem('gameState', JSON.stringify(gs));
   
-  // Check if game is complete (Day 30 reached after choice)
-  if(gs.currentDay>=30){
+  // Check if game is complete (Day 31 reached - game goes from 1-30)
+  if(gs.currentDay>30){
     // Save game state and navigate to result page
     sessionStorage.setItem('gameState', JSON.stringify(gs));
     setTimeout(()=>window.location.href='result.html',900);
     return;
   }
   
-  // Show weekly receipt if at end of week
-  if(showReceipt){
-    setTimeout(()=>showWeeklyReceipt(Math.floor(gs.currentDay/7)), 800);
-    return; // Don't load next scenario yet
+  // Check if today is a Monday (Days 8, 15, 22, 29) - allowance delivery day
+  const isMondayAllowanceDay=[8,15,22,29].includes(gs.currentDay);
+  
+  if(isMondayAllowanceDay){
+    // Show Monday Reset with allowance delivery
+    setTimeout(showMondayReset, 600);
+    return;
   }
   
   // Trigger money animation based on change

@@ -22,20 +22,13 @@ function toggleMenu() {
 function submitSetupForm() {
   const name = document.getElementById('playerName').value.trim();
   const age = document.getElementById('playerAge').value;
-  const allowance = document.getElementById('playerAllowance').value;
-  
   if(!name){alert('Ilagay mo ang iyong pangalan!');return false;}
   if(!age){alert('Ilagay mo ang iyong edad!');return false;}
-  if(!allowance){alert('Ilagay mo ang iyong weekly allowance!');return false;}
-  
-  const amt = parseInt(allowance);
-  if(amt < 10){alert('Allowance dapat at least ₱10!');return false;}
-  if(amt > 5000){alert('Allowance ay maximum ₱5000!');return false;}
   
   sessionStorage.removeItem('gameState');
   sessionStorage.setItem('playerName', name);
   sessionStorage.setItem('playerAge', age);
-  sessionStorage.setItem('playerAllowance', amt);
+  sessionStorage.setItem('playerAllowance', 100);
   
   window.location.href = 'game.html';
   return false;
@@ -122,16 +115,29 @@ function setupInputListeners() {
       }
     });
   }
-  
-  // Allowance input
-  const playerAllowance = document.getElementById('playerAllowance');
-  if(playerAllowance && currentSlide === 8){
-    playerAllowance.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter' && playerAllowance.value){
-        nextSlide();
-      }
+}
+
+function setupMenuButtons() {
+  const leaderboardBtn = document.getElementById('leaderboardBtn');
+  if(leaderboardBtn){
+    leaderboardBtn.addEventListener('click', function() {
+      window.location.href = 'leaderboard.html';
     });
   }
+  
+  const howtoBtn = document.getElementById('howtoBtn');
+  if(howtoBtn){
+    howtoBtn.addEventListener('click', function() {
+      window.location.href = 'how-it-works.html';
+    });
+  }
+}
+
+// Initialize menu buttons when DOM is ready
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', setupMenuButtons);
+}else{
+  setupMenuButtons();
 }
 </script>
 </head>
@@ -141,8 +147,9 @@ function setupInputListeners() {
     <!-- HAMBURGER MENU -->
     <button class="hamburger-menu" id="menuBtn" onclick="toggleMenu()">☰</button>
     <div id="menuDropdown" class="spent-dropdown" style="display:none;">
-      <button class="spent-menu-item" id="leaderboardBtn">🏆 LEADERBOARD</button>
-      <button class="spent-menu-item" id="aboutBtn">ℹ️ TUNGKOL</button>
+      <button class="spent-menu-item" id="leaderboardBtn">🏆 Leaderboards</button>
+      <button class="spent-menu-item" id="soundBtn" disabled title="Coming soon!">🔊 Sounds</button>
+      <button class="spent-menu-item" id="howtoBtn">📖 How to Play</button>
     </div>
 
     <!-- TITLE SCREEN (OPENING) -->
@@ -213,12 +220,7 @@ function setupInputListeners() {
         </div>
       </div>
 
-      <div class="slide input-slide">
-        <div class="slide-content">
-          <label class="input-label">Magkano ang iyong allowance per week? (₱)</label>
-          <input type="number" class="slide-input" id="playerAllowance" min="10" max="5000" placeholder="Halimbawa: 100" step="5" data-slide="9">
-        </div>
-      </div>
+      <!-- READY TO START SLIDE -->
 
       <!-- Final Slide -->
       <div class="slide final-slide">
