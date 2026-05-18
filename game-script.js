@@ -1,17 +1,49 @@
 // ─── GAME PAGE LOGIC ───
 const gs = {
   playerName:'',playerAge:0,playerGrade:'',
-  currentWeek:1,currentDay:1,
-  money:0,weeklyAllowance:0,
+  currentDay:1,
+  money:0,weeklyAllowance:100,
   energy:10,health:10,friendship:10,family:10,grades:85,stress:3,
   totalSpent:0,
   debt:0,
   savings:0,
-  weeklyChoices:[],
+  dailyChoices:[],
+  // Category tracking for spending personality
+  spentByCategory:{transport:0,food:0,social:0,extracurricular:0},
+  parentalAdvanceCount:0,
+  // Big Events system
+  weeklyBigEvents:{},
+  usedBigEvents:[],
+  dayChoiceCount:0, // Track choices within a day (0=commute, 1=lunch, 2=event)
 };
 
 // Initialize game state from session storage
 function initGameState(){
+  // Check if there's an existing game state to restore (game in progress)
+  const savedGameState = sessionStorage.getItem('gameState');
+  if(savedGameState){
+    try {
+      const restored = JSON.parse(savedGameState);
+      // Merge restored state into gs object
+      Object.assign(gs, restored);
+      document.getElementById('displayName').textContent=gs.playerName;
+      document.getElementById('dayTotal').textContent=30;
+      setupEventListeners();
+      updateUI();
+      
+      // Check if this is a Monday - show Monday Reset modal
+      if([1,8,15,22,29].includes(gs.currentDay)){
+        setTimeout(showMondayReset, 300);
+      } else {
+        loadScenario();
+      }
+      return;
+    } catch(e){
+      console.log('Could not restore saved game, starting fresh');
+    }
+  }
+  
+  // NEW GAME: Initialize from session storage
   gs.playerName = sessionStorage.getItem('playerName') || '';
   gs.playerAge = parseInt(sessionStorage.getItem('playerAge')) || 0;
   
@@ -25,8 +57,8 @@ function initGameState(){
   
   gs.weeklyAllowance = customAllowance;
   gs.money = customAllowance;
-  // Set game duration to 4 weeks by default for custom allowance
-  const gameDuration = 4;
+  // Game duration: 30 days. Allowance given on Mondays (Days 1, 8, 15, 22, 29)
+  const gameDuration = 30;
   
   // Assign grade based on allowance for scenario selection
   if(customAllowance <= 50) gs.playerGrade = 'elem-lower';
@@ -39,6 +71,23 @@ function initGameState(){
   document.getElementById('displayName').textContent=gs.playerName;
   document.getElementById('dayTotal').textContent=gameDuration;
   
+  setupEventListeners();
+  
+  // Generate big events for all weeks
+  generateWeeklyBigEvents();
+  
+  updateUI();
+  
+  // Check if this is a Monday - show Monday Reset modal
+  if([1,8,15,22,29].includes(gs.currentDay)){
+    setTimeout(showMondayReset, 300);
+  } else {
+    loadScenario();
+  }
+}
+
+// ─── SETUP EVENT LISTENERS ───────────────────────────────────────
+function setupEventListeners(){
   // No more day progress dots - using minimal SPENT design
   
   // Setup stats panel toggle
@@ -112,7 +161,8 @@ function initGameState(){
     if(amt>0){
       gs.money+=amt;
       gs.debt+=amt;
-      showToast('💵 Nanay gave you ₱'+amt+'! Remember: next week -₱'+amt,'tip');
+      gs.parentalAdvanceCount++;
+      showToast('💵 Nanay gave you ₱'+amt+'! Remember: next Monday -₱'+amt+' (parental advance)','tip');
       document.getElementById('nanayModal').classList.remove('show');
       document.getElementById('borrowAmount').value='';
       updateUI();
@@ -204,20 +254,200 @@ function initGameState(){
     }
   });
   
-  updateUI();
-  loadScenario();
+  // Setup Big Event modal handlers
+  setupBigEventModalHandlers();
 }
 
-// ─── SCENARIO ──────────────────────────────────────────────
+// ─── BIG EVENT MODAL ───────────────────────────────────────
+function showBigEventModal(event){
+  const costAmount = Math.round(gs.weeklyAllowance * (event.costScale || 0));
+  
+  document.getElementById('bigEventTitle').textContent = event.title;
+  document.getElementById('bigEventDesc').textContent = event.desc;
+  document.getElementById('bigEventCost').textContent = '₱' + costAmount;
+  
+  document.getElementById('bigEventPayBtn').onclick = () => {
+    if(gs.money >= costAmount){
+      gs.money -= costAmount;
+      gs.totalSpent += costAmount;
+      gs.spentByCategory['extracurricular'] = (gs.spentByCategory['extracurricular'] || 0) + costAmount;
+      if(event.gradeImpact) gs.grades = clamp(gs.grades + event.gradeImpact, 0, 100);
+      if(event.socialImpact) gs.friendship = clamp(gs.friendship + event.socialImpact, 0, 10);
+      if(event.healthImpact) gs.health = clamp(gs.health + event.healthImpact, 0, 10);
+      if(event.stressImpact) gs.stress = clamp(gs.stress + event.stressImpact, 0, 10);
+      showToast('✅ Bayad mo na! ' + event.title, 'ok');
+      closeBigEventModal();
+      setTimeout(() => {
+        gs.dayChoiceCount++;
+        if(gs.dayChoiceCount >= 3) {
+          gs.dayChoiceCount = 0;
+          gs.currentDay++;
+          // Check if new day is a Monday
+          if([8,15,22,29].includes(gs.currentDay)){
+            showMondayReset();
+            return;
+          }
+        }
+        updateUI();
+        sessionStorage.setItem('gameState', JSON.stringify(gs));
+        loadScenario();
+      }, 500);
+    } else {
+      showToast('Kulang ang pera mo! Need ₱' + costAmount, 'bad');
+    }
+  };
+  
+  document.getElementById('bigEventAdvanceBtn').onclick = () => {
+    gs.money += costAmount;
+    gs.debt += costAmount;
+    gs.parentalAdvanceCount++;
+    if(event.gradeImpact) gs.grades = clamp(gs.grades + event.gradeImpact, 0, 100);
+    if(event.socialImpact) gs.friendship = clamp(gs.friendship + event.socialImpact, 0, 10);
+    if(event.healthImpact) gs.health = clamp(gs.health + event.healthImpact, 0, 10);
+    if(event.stressImpact) gs.stress = clamp(gs.stress + event.stressImpact, 0, 10);
+    showToast('💵 Parental Advance: ₱' + costAmount + ' (deduct sa next Monday)', 'tip');
+    closeBigEventModal();
+    setTimeout(() => {
+      gs.dayChoiceCount++;
+      if(gs.dayChoiceCount >= 3) {
+        gs.dayChoiceCount = 0;
+        gs.currentDay++;
+        // Check if new day is a Monday
+        if([8,15,22,29].includes(gs.currentDay)){
+          showMondayReset();
+          return;
+        }
+      }
+      updateUI();
+      sessionStorage.setItem('gameState', JSON.stringify(gs));
+      loadScenario();
+    }, 500);
+  };
+  
+  document.getElementById('bigEventSkipBtn').onclick = () => {
+    gs.grades = clamp(gs.grades - 5, 0, 100);
+    gs.stress = clamp(gs.stress + 1, 0, 10);
+    showToast('⚠️ Skipped. Grades -5', 'bad');
+    closeBigEventModal();
+    setTimeout(() => {
+      gs.dayChoiceCount++;
+      if(gs.dayChoiceCount >= 3) {
+        gs.dayChoiceCount = 0;
+        gs.currentDay++;
+        // Check if new day is a Monday
+        if([8,15,22,29].includes(gs.currentDay)){
+          showMondayReset();
+          return;
+        }
+      }
+      updateUI();
+      sessionStorage.setItem('gameState', JSON.stringify(gs));
+      loadScenario();
+    }, 500);
+  };
+  
+  document.getElementById('bigEventModal').classList.add('show');
+}
+
+function closeBigEventModal(){
+  document.getElementById('bigEventModal').classList.remove('show');
+}
+
+function setupBigEventModalHandlers(){
+  const modal = document.getElementById('bigEventModal');
+  if(modal){
+    modal.addEventListener('click', (e) => {
+      if(e.target.id === 'bigEventModal'){
+        closeBigEventModal();
+      }
+    });
+  }
+}
+function showMondayReset(){
+  const week = Math.ceil(gs.currentDay / 7);
+  document.getElementById('mondayWeekNum').textContent = week;
+  document.getElementById('mondayBalance').textContent = '₱' + gs.money;
+  
+  // Show big events for this week
+  const eventsList = document.getElementById('mondayEventsList');
+  eventsList.innerHTML = '';
+  if(gs.weeklyBigEvents[week] && gs.weeklyBigEvents[week].length > 0){
+    gs.weeklyBigEvents[week].forEach(event => {
+      const item = document.createElement('div');
+      item.className = 'monday-event-item';
+      item.innerHTML = `<div class="event-icon">📋</div><div class="event-text"><strong>${event.title}</strong></div>`;
+      eventsList.appendChild(item);
+    });
+  } else {
+    eventsList.innerHTML = '<p style="color:#888;">No big events this week</p>';
+  }
+  
+  document.getElementById('mondayResetModal').classList.add('show');
+  
+  document.getElementById('mondayReadyBtn').onclick = () => {
+    document.getElementById('mondayResetModal').classList.remove('show');
+    gs.dayChoiceCount = 0;
+    loadScenario();
+  };
+}
+
+// ─── GENERATE WEEKLY BIG EVENTS ────────────────────────────
+function generateWeeklyBigEvents(){
+  for(let week = 1; week <= 4; week++){
+    gs.weeklyBigEvents[week] = [];
+    // Randomly select 0-2 big events per week
+    const eventCount = Math.floor(Math.random() * 3);
+    const shuffled = bigEvents.sort(() => 0.5 - Math.random());
+    for(let i = 0; i < eventCount && i < shuffled.length; i++){
+      if(!gs.usedBigEvents.includes(shuffled[i].id)){
+        gs.weeklyBigEvents[week].push(shuffled[i]);
+        gs.usedBigEvents.push(shuffled[i].id);
+      }
+    }
+  }
+}
+
+// ─── GET SCENARIO BY CATEGORY ──────────────────────────────
+function getScenarioByCategory(category){
+  const pool = scenariosDB[gs.playerGrade] || scenariosDB['jhs-lower'];
+  const categoryScenarios = pool.filter(s => s.category === category);
+  if(categoryScenarios.length === 0) return pool[Math.floor(Math.random() * pool.length)];
+  return categoryScenarios[Math.floor(Math.random() * categoryScenarios.length)];
+}
+
+// ─── GET RANDOM SOCIAL EVENT ──────────────────────────────
+function getRandomSocialEvent(){
+  const pool = scenariosDB[gs.playerGrade] || scenariosDB['jhs-lower'];
+  const socialScenarios = pool.filter(s => ['social','socials','food','transport'].includes(s.category));
+  if(socialScenarios.length === 0) return pool[Math.floor(Math.random() * pool.length)];
+  return socialScenarios[Math.floor(Math.random() * socialScenarios.length)];
+}
+
+// ─── SCENARIO LOADING WITH DAILY STRUCTURE ─────────────────
 let usedIdx=[];
 function loadScenario(){
-  const pool=scenariosDB[gs.playerGrade]||scenariosDB['jhs-lower'];
-  if(usedIdx.length>=pool.length)usedIdx=[];
-  let i;
-  do{i=Math.floor(Math.random()*pool.length);}
-  while(usedIdx.includes(i)&&usedIdx.length<pool.length);
-  usedIdx.push(i);
-  displayScenario(pool[i]);
+  let scenario;
+  
+  // Structure the daily cycle: Commute -> Lunch -> Random Event
+  if(gs.dayChoiceCount === 0){
+    // Morning: Transport choice
+    scenario = getScenarioByCategory('transport');
+  } else if(gs.dayChoiceCount === 1){
+    // Lunch: Food choice
+    scenario = getScenarioByCategory('food');
+  } else {
+    // Evening: Random event or big event
+    const week = Math.ceil(gs.currentDay / 7);
+    if(gs.weeklyBigEvents[week] && gs.weeklyBigEvents[week].length > 0 && Math.random() < 0.4){
+      // 40% chance to trigger a big event
+      const bigEvent = gs.weeklyBigEvents[week].shift();
+      showBigEventModal(bigEvent);
+      return;
+    }
+    scenario = getRandomSocialEvent();
+  }
+  
+  displayScenario(scenario);
 }
 
 function displayScenario(sc){
@@ -228,6 +458,8 @@ function displayScenario(sc){
   // Add staggered animation to buttons
   let delay=0;
   sc.choices.forEach(ch=>{
+    // Attach scenario category to choice
+    ch.category = sc.category;
     const btn=document.createElement('button');
     btn.className='choice-btn-spent '+ch.type;btn.textContent=ch.text;
     btn.style.animationDelay=(0.4+delay*0.1)+'s';
@@ -240,11 +472,15 @@ function displayScenario(sc){
 function makeChoice(ch){
   document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=true);
   const oldMoney=gs.money;
-  gs.money+=-(ch.cost);
-  if(ch.cost>0){
-    gs.totalSpent+=ch.cost;
-    // Track choice for weekly receipt
-    gs.weeklyChoices.push({title:ch.text, cost:ch.cost});
+  const costAmount=Math.round(gs.weeklyAllowance * (ch.costScale || 0));
+  gs.money-=costAmount;
+  if(costAmount>0){
+    gs.totalSpent+=costAmount;
+    // Track choice for daily record
+    gs.dailyChoices.push({title:ch.text, cost:costAmount, day:gs.currentDay, category:ch.category});
+    // Track by category for spending personality
+    const cat = ch.category || 'other';
+    gs.spentByCategory[cat] = (gs.spentByCategory[cat] || 0) + costAmount;
   }
   const im=ch.impact;
   gs.energy    =clamp(gs.energy    +(im.energy    ||0),0,10);
@@ -255,37 +491,54 @@ function makeChoice(ch){
   gs.stress    =clamp(gs.stress    +(im.stress    ||0),0,10);
   const tt=ch.type==='positive'?'ok':ch.type==='negative'?'bad':'tip';
   showToast(ch.feedback||'',tt);
-  gs.currentDay++;
   
-  const showReceipt=gs.currentDay>7;
+  // Increment daily choice counter
+  gs.dayChoiceCount++;
   
-  if(gs.currentDay>7){
-    gs.currentDay=1;gs.currentWeek++;
-    const allowanceThisWeek=gs.weeklyAllowance-gs.debt;
-    gs.money+=allowanceThisWeek;
-    gs.debt=0;
-    const dur=4; // Always 4 weeks for custom allowance
-    if(gs.currentWeek<=dur){
-      if(allowanceThisWeek<gs.weeklyAllowance){
-        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisWeek+' (−₱'+(gs.weeklyAllowance-allowanceThisWeek)+' debt)','ok'),500);
+  // After 3 choices (commute, lunch, event), move to next day
+  if(gs.dayChoiceCount >= 3){
+    gs.dayChoiceCount = 0;
+    gs.currentDay++;
+    
+    // Check if today is a Monday (Days 1, 8, 15, 22, 29) - allowance delivery day
+    const isMondayAllowanceDay=[1,8,15,22,29].includes(gs.currentDay);
+    
+    if(gs.currentDay>1 && isMondayAllowanceDay){
+      // Deliver Monday allowance (minus any debt from parental advance)
+      const allowanceThisMonday=gs.weeklyAllowance-gs.debt;
+      gs.money+=allowanceThisMonday;
+      if(gs.debt>0){
+        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisMonday+' (−₱'+(gs.weeklyAllowance-allowanceThisMonday)+' parental advance)','ok'),500);
       }else{
-        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisWeek+' allowance','ok'),500);
+        setTimeout(()=>showToast('✅ Bagong Linggo! +₱'+allowanceThisMonday+' baon','ok'),500);
       }
+      gs.debt=0; // Debt cleared after deduction
     }
   }
-  if(gs.money<0){gs.stress=clamp(gs.stress+1,0,10);gs.health=clamp(gs.health-1,0,10);}
-  const duration=4; // Always 4 weeks for custom allowance
-  if(gs.currentWeek>duration){
+  
+  if(gs.money<0){
+    gs.stress=clamp(gs.stress+1,0,10);
+    gs.health=clamp(gs.health-1,0,10);
+  }
+  
+  // Check if it's end of week (Days 7, 14, 21, 28) - show weekly receipt
+  const showReceipt=[7,14,21,28].includes(gs.currentDay);
+  
+  updateUI();
+  // Save current game state after each choice
+  sessionStorage.setItem('gameState', JSON.stringify(gs));
+  
+  // Check if game is complete (Day 30 reached after choice)
+  if(gs.currentDay>=30){
     // Save game state and navigate to result page
     sessionStorage.setItem('gameState', JSON.stringify(gs));
     setTimeout(()=>window.location.href='result.html',900);
     return;
   }
-  updateUI();
   
-  // Show weekly receipt if transitioning to next week
+  // Show weekly receipt if at end of week
   if(showReceipt){
-    setTimeout(()=>showWeeklyReceipt(gs.currentWeek-1), 800);
+    setTimeout(()=>showWeeklyReceipt(Math.floor(gs.currentDay/7)), 800);
     return; // Don't load next scenario yet
   }
   
@@ -299,7 +552,7 @@ function makeChoice(ch){
 
 // ─── UI ────────────────────────────────────────────────────
 function updateUI(){
-  document.getElementById('dayNum').textContent=gs.currentWeek;
+  document.getElementById('dayNum').textContent=gs.currentDay;
   const md=document.getElementById('moneyDisplay');
   md.textContent=gs.money;
   
@@ -339,9 +592,13 @@ function updateDebtInfo(){
 
 // WEEKLY RECEIPT DISPLAY
 function showWeeklyReceipt(week){
-  // Calculate total spent this week
+  // Calculate total spent this week by filtering dailyChoices for this week
+  const weekStartDay=(week-1)*7+1;
+  const weekEndDay=week*7;
+  const thisWeeksChoices=gs.dailyChoices.filter(c=>c.day>=weekStartDay && c.day<=weekEndDay);
+  
   let totalSpentThisWeek=0;
-  gs.weeklyChoices.forEach(choice=>{
+  thisWeeksChoices.forEach(choice=>{
     totalSpentThisWeek+=choice.cost;
   });
   
@@ -352,8 +609,8 @@ function showWeeklyReceipt(week){
   // Populate receipt items
   const itemsContainer=document.getElementById('receiptItems');
   itemsContainer.innerHTML='';
-  if(gs.weeklyChoices.length>0){
-    gs.weeklyChoices.forEach(choice=>{
+  if(thisWeeksChoices.length>0){
+    thisWeeksChoices.forEach(choice=>{
       const item=document.createElement('div');
       item.className='receipt-item';
       item.innerHTML=`
@@ -387,8 +644,14 @@ function showWeeklyReceipt(week){
   // Setup continue button
   document.getElementById('continueReceipt').onclick=()=>{
     document.getElementById('weeklyReceiptModal').classList.remove('show');
-    gs.weeklyChoices=[]; // Reset for next week
-    loadScenario();
+    gs.currentDay++;
+    
+    // Check if the new day is a Monday - show Monday Reset if so
+    if([8,15,22,29].includes(gs.currentDay)){
+      setTimeout(showMondayReset, 300);
+    } else {
+      loadScenario();
+    }
   };
 }
 

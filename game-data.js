@@ -8,751 +8,559 @@ const gradeConfig = {
   'college-2': {weeklyAllowance:800,duration:4,label:'2nd-4th Year'},
 };
 
-const scenariosDB = {
-  'elem-lower':[
-    {loc:'Sa Kanto',title:'Tindahan ng Candy!',
-     text:'May bagong gulaman sa tindahan ni Aling Rosa — ₱10 lang. Grabe ang tukso!',
-     choices:[
-      {text:'Bilhin ang gulaman (−₱10)',cost:10,impact:{energy:1,stress:-1},type:'positive',feedback:'Masarap! Pero may nagastos ka na.'},
-      {text:'Mag-tiis, magtipid',cost:0,impact:{stress:1},type:'neutral',feedback:'Mabuti! Natipid mo ang ₱10. Proud si Nanay!'},
-    ]},
-    {loc:'Sa Klase',title:'Birthday ni Bestie!',
-     text:'Kaarawan ni Ate Mae bukas! Gusto mong bumili ng regalo. ₱30 ang paboritong panulat niya.',
-     choices:[
-      {text:'Bumili ng regalo (−₱30)',cost:30,impact:{friendship:2},type:'positive',feedback:'Si Ate Mae ay sobrang natuwa sa regalo mo!'},
-      {text:'Gumawa ng hand-made card (libre!)',cost:0,impact:{friendship:1,family:1},type:'balance',feedback:'Malikhaing solusyon! Mas may pagmamahal pa talaga.'},
-      {text:'Walang regalo — mahal kasi',cost:0,impact:{friendship:-2},type:'negative',feedback:'Medyo nalungkot si Ate Mae. Sana next time!'},
-    ]},
-    {loc:'Sa Canteen',title:'Gutom na!',
-     text:'Recess na, gutom ka na. May baon ka pero amoy masarap ang lugaw ng canteen — ₱20.',
-     choices:[
-      {text:'Bili ng lugaw (−₱20)',cost:20,impact:{energy:2,health:1},type:'positive',feedback:'Sarap talaga! Pero naubos na ang malaki.'},
-      {text:'Kainin na lang ang baon',cost:0,impact:{energy:1,health:1,family:1},type:'neutral',feedback:'Mabuti! Masustansya pa ang baon ni Nanay.'},
-    ]},
-    {loc:'Sa Bahay',title:'Nanay Kailangan Tulong',
-     text:'Nanay: "Anak, may ₱10 ka ba? Kulang ako para sa toyo." Paano mo siya tutulungan?',
-     choices:[
-      {text:'Ibigay ang ₱10 (−₱10)',cost:10,impact:{family:3},type:'positive',feedback:'Napakabait mo! Sobrang proud si Nanay sa iyo.'},
-      {text:'Sabihing wala kahit may pera',cost:0,impact:{family:-2,stress:2},type:'negative',feedback:'Nahiya ka ba? Okay lang tulungan ang pamilya.'},
-    ]},
-    {loc:'Sa Paaralan',title:'School Fair!',
-     text:'May peryahan sa paaralan ngayong Biyernes! Maraming laro at pagkain. Budget: ₱30.',
-     choices:[
-      {text:'Mag-enjoy sa fair (−₱30)',cost:30,impact:{friendship:2,stress:-2},type:'positive',feedback:'Ang saya-saya! Buhay estudyante talaga ito!'},
-      {text:'Manood lang, hindi sumali',cost:0,impact:{stress:1},type:'neutral',feedback:'Natipid ka pero parang malungkot ka rin.'},
-    ]},
-    {loc:'Sa Arcade',title:'Bagong Laro sa Mall!',
-     text:'May bagong dance machine sa mall! Kaklase mo ay nag-iimbita. ₱15 per game.',
-     choices:[
-      {text:'Maglaro isang round (−₱15)',cost:15,impact:{energy:2,stress:-2,friendship:1},type:'positive',feedback:'Grabe ang saya! Pawis ka pa!'},
-      {text:'Manood lang ng laro ng iba',cost:0,impact:{friendship:1},type:'neutral',feedback:'Nakita mo rin naman at nakalibang ka.'},
-    ]},
-    {loc:'Sa Sari-Sari',title:'Ice Cream After School!',
-     text:'Mainit ng hapon. May ice cream stand sa tapat ng school — ₱8 lang.',
-     choices:[
-      {text:'Bumili ng ice cream (−₱8)',cost:8,impact:{energy:1,stress:-1},type:'positive',feedback:'Sarap ng cold treat! Refresh ka na.'},
-      {text:'Mag-tiis, maglakad na agad',cost:0,impact:{energy:-1},type:'neutral',feedback:'Okay din. Natipid at maaga ka sa bahay.'},
-    ]},
-    {loc:'Sa Parke',title:'Gaming Salu-Salo',
-     text:'Mga kaibigan ay naglalaro ng handheld games sa parke. Join ka? ₱15 shared snacks.',
-     choices:[
-      {text:'Sumali at mag-snack (−₱15)',cost:15,impact:{friendship:2,stress:-1},type:'positive',feedback:'Ang saya ng bonding time kasama ang barkada!'},
-      {text:'Mag-laro lang, walang snack',cost:0,impact:{friendship:1},type:'balance',feedback:'Okay din! Ang importante ay kasama mo sila.'},
-    ]},
-    {loc:'Sa Tulay',title:'Nakita ng Pera! Dako ito?',
-     text:'May ₱50 na nahanap mo sa tulay! Kukuha ka ba at iingatan?',
-     choices:[
-      {text:'Kunin at iingatan — swerte!',cost:-50,impact:{family:-1,stress:1},type:'positive',feedback:'May nakita mo! Pero naguluhan ka kung yun din ba ang totoo.'},
-      {text:'Iwan doon — hindi mo yun',cost:0,impact:{family:1},type:'neutral',feedback:'Tama! Kung taon-taon kang naghihintay, balik doon.'},
-    ]},
-    {loc:'Sa Bahay',title:'Tulong sa Gawaing Bahay',
-     text:'Nanay: "Tutulong ka sa laba? Pagkatapos, may ₱20 para sa iyo."',
-     choices:[
-      {text:'Tulong agad! Earn ₱20 (+₱20)',cost:-20,impact:{family:2},type:'positive',feedback:'Mabuti! Kumita at natulungan ang Nanay. Win-win!'},
-      {text:'Maglaro muna — tulong bukas',cost:0,impact:{family:-1},type:'negative',feedback:'Medyo naiwan ang Nanay ng tulong. Sana makinabang ka.'},
-    ]},
-    {loc:'Sa Klase',title:'Kaibigan Nasasakit — Aspirin Kailangan',
-     text:'Puso ng kaibigan ay dumudugo. Aspirin o tubig? May gastos ₱15 para sa gamot.',
-     choices:[
-      {text:'Bilhin ang aspirin (−₱15)',cost:15,impact:{friendship:3,health:1},type:'positive',feedback:'Buti ka! Iniligtas mo ang kaibigan mo. Hero!'},
-      {text:'Dalhin sa clinic lang muna',cost:0,impact:{friendship:1},type:'neutral',feedback:'Okaydin pero aspirin agad ang dapat gawain.'},
-    ]},
-    {loc:'Sa Paaralan',title:'School Supplies Kailangan',
-     text:'Gutay na ang notebook mo. Bagong notebook + pen = ₱25.',
-     choices:[
-      {text:'Bilhin ang bago (−₱25)',cost:25,impact:{grades:2},type:'positive',feedback:'Handa ka na sa notes. Gagana ka ng maayos ngayon.'},
-      {text:'Gumamit ng naiiwan na papel',cost:0,impact:{grades:-1},type:'negative',feedback:'Mahirap i-notes nang maayos. Mahuhuli ka sa pagkuha ng leksyon.'},
-    ]},
-    {loc:'Sa Bahay',title:'Tatay Kailangan Tulong',
-     text:'Tatay: "May pera ka ba? Kailangan ko ng ₱30 para sa bolts. Makatulong?"',
-     choices:[
-      {text:'Ibigay ang ₱30 (−₱30)',cost:30,impact:{family:3},type:'positive',feedback:'Napakabait mo! Proud ang Tatay sa iyo.'},
-      {text:'Sabihing wala kahit may pera',cost:0,impact:{family:-2},type:'negative',feedback:'Nagsisi ang Tatay. Pero important ito para sa project niya.'},
-    ]},
-    {loc:'Sa Sinehan',title:'Movie Night with Friends!',
-     text:'May showing ng bagong animated film! Ticket + popcorn = ₱45.',
-     choices:[
-      {text:'Panoorin (−₱45)',cost:45,impact:{friendship:2,stress:-2},type:'positive',feedback:'Ang gastos-ganda! Memorable day talaga!'},
-      {text:'Manood nalang sa cable',cost:0,impact:{friendship:0},type:'neutral',feedback:'Okay din! Makakatipid ka pa.'},
-    ]},
-    {loc:'Sa Siyudad',title:'Sports Event Entry — Basketball',
-     text:'May inter-school sports event! Entry fee = ₱20. Mag-participate ka ba?',
-     choices:[
-      {text:'Sumali sa event (−₱20)',cost:20,impact:{health:2,friendship:2,stress:-1},type:'positive',feedback:'Laro ka! Nag-enjoy at nag-exercise pa.'},
-      {text:'Manood lang — hindi sumali',cost:0,impact:{friendship:1},type:'neutral',feedback:'Okay din! Supporter ka pa rin.'},
-    ]},
-    {loc:'Sa Library',title:'Komiks / Comic Books!',
-     text:'May bagong komiks sa library! Bilhin o ipon pa? ₱18 lang.',
-     choices:[
-      {text:'Bilhin agad (−₱18)',cost:18,impact:{stress:-1,energy:1},type:'positive',feedback:'Entertained ka! May oras din para mag-relax.'},
-      {text:'Ipon pa — bili bukas',cost:0,impact:{stress:1},type:'neutral',feedback:'Smart! Controlled ang gastos mo.'},
-    ]},
-    {loc:'Sa Tahanan',title:'Tulong sa Ubasan — Kumita!',
-     text:'May kaibigan na mag-aani ng ubas. Tutulungan ka nila? ₱50 kita.',
-     choices:[
-      {text:'Tulong at kumita (+₱50)',cost:-50,impact:{energy:-1,family:1},type:'positive',feedback:'Awesome! Kumita ka ng legit na pera!'},
-      {text:'Maglaro muna — trabaho bukas',cost:0,impact:{energy:1},type:'neutral',feedback:'Okay din! Pero may chance na nawala ang oportunidad.'},
-    ]},
-  ],
+// ─── BIG EVENTS (Extracurriculars, Projects, Activities) ─────
+// These occur randomly during the 30 days and require money
+// Player can pay, ask for parental advance, or skip (grades penalty)
+const bigEvents = [
+  {id:'event-research-project',title:'Research Project Due',desc:'Your research project is due. Need ₱30 for materials (printing, binding).',costScale:0.3,gradeImpact:2},
+  {id:'event-club-shirt',title:'Science Club Shirt',desc:'The Science Club is selling limited-edition shirts for club events. ₱50.',costScale:0.5,gradeImpact:1,socialImpact:1},
+  {id:'event-field-trip',title:'Field Trip Permission Slip',desc:'Exciting field trip tomorrow! But need to pay ₱80 for transportation and entrance fee.',costScale:0.8,gradeImpact:2,healthImpact:1},
+  {id:'event-sports-fee',title:'Sports Club Registration',desc:'Basketball tournament next month. Registration fee: ₱60.',costScale:0.6,gradeImpact:1,healthImpact:1},
+  {id:'event-art-supplies',title:'Art Supplies for Contest',desc:'School art contest this week. Need ₱40 for canvas and paints.',costScale:0.4,gradeImpact:2},
+  {id:'event-tutoring',title:'Tutoring Session',desc:'Struggling in Math? Peer tutor charges ₱50 per session.',costScale:0.5,gradeImpact:2},
+  {id:'event-photo-fee',title:'Class Photo Package',desc:'Class photos due. Package for digital copies and prints: ₱45.',costScale:0.45,socialImpact:1},
+  {id:'event-debate-costume',title:'Debate Team Costume',desc:'You made the debate team! Need ₱75 for costume rental.',costScale:0.75,gradeImpact:1,stressImpact:-1},
+];
 
-  'elem-upper':[
-    {loc:'Sa Jeepney',title:'Pamasahe Papunta School',
-     text:'Kailangan ng pamasahe papunta sa school. Jeepney = ₱15. Maglalakad ka ba?',
-     choices:[
-      {text:'Sakay ng jeepney (−₱15)',cost:15,impact:{energy:1},type:'neutral',feedback:'Komportable at nakarating ka agad.'},
-      {text:'Maglakad para makatipid',cost:0,impact:{energy:-1,health:1},type:'balance',feedback:'Natipid ka pero pagod na pag-dating mo.'},
-    ]},
-    {loc:'Sa Bookstore',title:'School Project Kailangan',
-     text:'Kailangan ng poster board at marker para sa Science project. Total: ₱40.',
-     choices:[
-      {text:'Bilhin lahat (−₱40)',cost:40,impact:{grades:3},type:'positive',feedback:'Maganda ang project mo! Ipinagmalaki ka ng teacher.'},
-      {text:'Gumamit ng lumang cardboard (−₱5)',cost:5,impact:{grades:1,family:1},type:'balance',feedback:'Creative recycling! Nag-appreciate pa ang teacher.'},
-      {text:'Hiram sa kaklase, walang gastos',cost:0,impact:{friendship:-1},type:'neutral',feedback:'Natipid ka pero medyo naiinis ang hiniram mo.'},
-    ]},
-    {loc:'Sa Sari-Sari Store',title:'Mainit na Panahon',
-     text:'Sobrang init ngayon! Ang buko juice ni Mang Ben ay ₱20. Tubig lang din okay.',
-     choices:[
-      {text:'Bumili ng buko juice (−₱20)',cost:20,impact:{energy:2,health:1,stress:-1},type:'positive',feedback:'Ahh refreshing! Para kang nabuhay muli.'},
-      {text:'Uminom ng tubig lang mula gripo',cost:0,impact:{energy:1},type:'neutral',feedback:'Okay din naman. Libre pa!'},
-    ]},
-    {loc:'Sa Klase',title:'Kontribusyon para sa Birthday Cake',
-     text:'May kaarawan si Teacher. Nag-iipon ang klase ng ₱50 bawat isa para sa cake.',
-     choices:[
-      {text:'Mag-ambag ng ₱50 (−₱50)',cost:50,impact:{friendship:2},type:'positive',feedback:'Masaya ang buong klase! Napakabait mong estudyante.'},
-      {text:'Sabihing wala (kahit may pera)',cost:0,impact:{friendship:-2,stress:1},type:'negative',feedback:'Alam ng mga kaklase mo... medyo naiwan ka.'},
-      {text:'Mag-ambag ng ₱25 lang (−₱25)',cost:25,impact:{friendship:1},type:'balance',feedback:'Okay din! Hindi ka nag-iwan ng kaklase mo.'},
-    ]},
-    {loc:'Sa Bahay',title:'Lola May Lagnat',
-     text:'Lola ay may mataas na lagnat. Kailangan ng gamot — ₱35. Ikaw ang pinakamalapit.',
-     choices:[
-      {text:'Ibigay ang pera para sa gamot (−₱35)',cost:35,impact:{family:3,health:1},type:'positive',feedback:'Nagpasalamat si Lola nang husto. Mahal ka niya.'},
-      {text:'Sabihing wala',cost:0,impact:{family:-3,stress:2},type:'negative',feedback:'Nasaktan ang puso ng Lola mo. Ingatan ang pamilya.'},
-    ]},
-    {loc:'Sa Mall',title:'Barkada Outing!',
-     text:'Mga kaibigan mo ay nagpaplano na pumunta sa mall pagkatapos ng klase. Budget: ₱50.',
-     choices:[
-      {text:'Sumama at mag-enjoy (−₱50)',cost:50,impact:{friendship:2,stress:-2},type:'positive',feedback:'Ang masaya ng samahan! Memories for life.'},
-      {text:'Mag-decline, may exam bukas',cost:0,impact:{friendship:-1,grades:1},type:'balance',feedback:'Matalino ka! Inuna mo ang exam. Susunod na lang.'},
-      {text:'Sumama pero hindi bumili (libre!)',cost:0,impact:{friendship:1,stress:-1},type:'neutral',feedback:'Nag-window shopping ka lang. Masaya pa rin!'},
-    ]},
-    {loc:'Sa Paaralan',title:'Lolo Bisita mula Probinsya!',
-     text:'Dumating si Lolo mula Batangas! Gusto niya kang dalhin sa merienda. Kailangan mo ng ₱60.',
-     choices:[
-      {text:'Sumama sa merienda (−₱60)',cost:60,impact:{family:3,stress:-1},type:'positive',feedback:'Sobrang saya ni Lolo! Kwento ng kwento kayo hanggang gabi.'},
-      {text:'Homework muna — susunod na lang',cost:0,impact:{family:-2,grades:1},type:'negative',feedback:'Naiintindihan ni Lolo pero medyo nalungkot siya.'},
-    ]},
-    {loc:'Sa Araw ng Ulan',title:'Kailangan ng Payong o Damit',
-     text:'Umuulan nang malakas. Payong = ₱25, new shirt = ₱80.',
-     choices:[
-      {text:'Bilhin ang payong (−₱25)',cost:25,impact:{health:1},type:'positive',feedback:'Protektado ka mula ulan. Healthy choice!'},
-      {text:'Magsuot ng gamit mula bahay',cost:0,impact:{health:-1},type:'negative',feedback:'Nabasa ka. Akyatin mo pang ang uupstairs.'},
-    ]},
-    {loc:'Sa Maskarang Alagang Hayop',title:'Pet Food para sa Alaga',
-     text:'Ang alagang aso mo ay gutom. Pet food = ₱35 bawat linggo.',
-     choices:[
-      {text:'Bilhin ang tapat na pet food (−₱35)',cost:35,impact:{family:2},type:'positive',feedback:'Mabuti ang alagang hayop! Healthy pa.'},
-      {text:'Kainin na lang ang putahe mula bahay',cost:0,impact:{family:-1},type:'neutral',feedback:'Okay din pero may special nutrition kailangan ng aso.'},
-    ]},
-    {loc:'Sa Musikahan',title:'Guitar Lesson Kailangan Ba?',
-     text:'May guitar lessons sa music studio. ₱100 per session. Trial lesson available.',
-     choices:[
-      {text:'Mag-sign up para sa trial (−₱100)',cost:100,impact:{stress:-1,energy:-1},type:'positive',feedback:'Nagsimula na ang musical journey mo!'},
-      {text:'Self-teach gamit YouTube (libre!)',cost:0,impact:{stress:-1},type:'balance',feedback:'Budget-friendly! May maraming free tutorials online.'},
-    ]},
-    {loc:'Sa Sapaterya',title:'Shoes Naging Luma na!',
-     text:'Ang sapatos mo ay sira na. Bagong sapatos = ₱80.',
-     choices:[
-      {text:'Bilhin ang bago (−₱80)',cost:80,impact:{health:1,energy:1},type:'positive',feedback:'Comfy na! Ready ka ng mga adventure.'},
-      {text:'Iampon pa muna — bili bukas',cost:0,impact:{energy:-1},type:'negative',feedback:'Mahirap ang lakad nang parang ang sapatos ay pihit na.'},
-    ]},
-    {loc:'Sa Kaibigan',title:'Mahiram Pera mula sa Kaibigan',
-     text:'Kaibigan: "Kailangan mo ba ng ₱50? Pwede kang humiram." Accept o decline?',
-     choices:[
-      {text:'Humiram ng ₱50 (−₱50 pero temporary)',cost:50,impact:{friendship:1,stress:-1},type:'positive',feedback:'Matibay ang kaibigan mo! Pero bayaran mo agad.'},
-      {text:'Decline — iwas sa utang',cost:0,impact:{friendship:0},type:'balance',feedback:'Tama! Control lang ang budget mo.'},
-    ]},
-    {loc:'Sa Gawaing Bahay',title:'Tulong at Kumita Lunch Money',
-     text:'Lolo: "Tutulong ka? May pang-lunch ka ng bukas — ₱40 lang."',
-     choices:[
-      {text:'Tulong agad! Earn ₱40 (+₱40)',cost:-40,impact:{family:2,energy:-1},type:'positive',feedback:'Generous ang Lolo! At kumita ka pa ng lunch.'},
-      {text:'Mamaya na — matulog muna',cost:0,impact:{family:-1},type:'negative',feedback:'Naiwan ang Lolo ng tulong. Sana makinabang ka pa.'},
-    ]},
-    {loc:'Sa Halaman',title:'Plant Project para sa Science',
-     text:'May science project: Palayan ng halaman. Seeds at soil = ₱45.',
-     choices:[
-      {text:'Bilhin ang materials (−₱45)',cost:45,impact:{grades:2},type:'positive',feedback:'Maganda ang project! Science is cool!'},
-      {text:'Gumamit ng likas na materyales',cost:0,impact:{grades:1},type:'balance',feedback:'Eco-friendly! Nag-appreciate pa ang teacher.'},
-    ]},
-    {loc:'Sa Paaralan',title:'Sports Uniform Needed',
-     text:'May sports day! Uniform kailangan = ₱65.',
-     choices:[
-      {text:'Bilhin ang uniform (−₱65)',cost:65,impact:{health:1,friendship:2},type:'positive',feedback:'Handa ka na! Ready para sa sports day!'},
-      {text:'Hiram sa kaklase — libre!',cost:0,impact:{friendship:1},type:'balance',feedback:'Okay din! Budget-friendly pa.'},
-    ]},
-    {loc:'Online',title:'Mobile Game Premium Pass',
-     text:'May bagong mobile game! Premium pass = ₱50 para unlimited. Worth?',
-     choices:[
-      {text:'Bilhin ang premium (−₱50)',cost:50,impact:{stress:-2,energy:-1},type:'positive',feedback:'Game on! Unlimited entertainment for weeks!'},
-      {text:'Play lang ng free version',cost:0,impact:{stress:-1},type:'balance',feedback:'Still fun! May lilimitado lang ng features.'},
-    ]},
-    {loc:'Sa Tindahan',title:'Kontribusyon sa Birthday Party',
-     text:'Kaarawan ng kaklase. Nag-iipon ng ₱50 para sa cake at regalo.',
-     choices:[
-      {text:'Mag-ambag ng ₱50 (−₱50)',cost:50,impact:{friendship:2},type:'positive',feedback:'Masaya ang celebration! Salamat sa iyo!'},
-      {text:'Pasahan nalang — walang pera',cost:0,impact:{friendship:-1},type:'negative',feedback:'Alam ng lahat na may pera ka kanina…'},
-      {text:'Mag-ambag ng ₱25 lang (−₱25)',cost:25,impact:{friendship:1},type:'balance',feedback:'Okay din! Hindi ka nag-iwan ng barkada.'},
-    ]},
-  ],
+// ─── UNIVERSAL SCENARIOS ────────────────────────────────────
+// These scenarios happen to every student every month, regardless of grade.
+// Costs are scaled at runtime based on the player's weeklyAllowance.
+// Each scenario has a `costScale` — a fraction of weeklyAllowance — instead of a fixed cost.
+// actual cost = Math.round(weeklyAllowance * costScale)
 
-  'jhs-lower':[
-    {loc:'Sa Kalsada',title:'Jeepney o Lakad?',
-     text:'Malayo ang school. Jeepney = ₱15. Maglalakad ka ba kahit 30 minuto ang layo?',
-     choices:[
-      {text:'Sakay ng jeepney (−₱15)',cost:15,impact:{energy:1},type:'neutral',feedback:'Nakarating ka nang maayos at fresh.'},
-      {text:'Maglakad para makatipid',cost:0,impact:{energy:-1,stress:1},type:'negative',feedback:'Natipid pero pagod at pawis pagdating.'},
-      {text:'Maglakad at kumain ng mura (−₱5)',cost:5,impact:{energy:1},type:'balance',feedback:'Compromise! Natipid at kumain pa.'},
-    ]},
-    {loc:'Sa Canteen',title:'Tanghalian na!',
-     text:'Nagtatanghali na. Tatlong pagpipilian ang naghihintay sa iyo...',
-     choices:[
-      {text:'Canteen meal (−₱45)',cost:45,impact:{energy:2,health:1},type:'positive',feedback:'Masustansya at masarap! Ready ka na sa hapon.'},
-      {text:'Kainin ang baon mula bahay',cost:0,impact:{energy:1,health:1,family:1},type:'neutral',feedback:'Mabuti! Natuwa si Nanay na kinain mo ang baon.'},
-      {text:'Jollibee kasama friends (−₱70)',cost:70,impact:{energy:2,friendship:2,stress:-1},type:'positive',feedback:'Masaya! Pero malaki ang nagastos.'},
-    ]},
-    {loc:'Sa Classroom',title:'Group Project — Walang Pera ang Grupo',
-     text:'Kailangan ng poster board at markers. ₱60 total. Ikaw lang ang may pera.',
-     choices:[
-      {text:'Bilhin lahat ikaw lang (−₱60)',cost:60,impact:{grades:2,stress:2,friendship:1},type:'positive',feedback:'Maganda ang project! Pero nagastos ka ng malaki.'},
-      {text:'Sabihin sa grupo na maghanap din sila',cost:0,impact:{grades:-2},type:'negative',feedback:'Hindi natuloy ang project. Nakita ng teacher.'},
-      {text:'Bayaran ang kalahati (−₱30)',cost:30,impact:{grades:1},type:'balance',feedback:'Fair enough. Nagsumikap kayong lahat.'},
-    ]},
-    {loc:'Sa 7-Eleven',title:'Barkada Milk Tea Session!',
-     text:'"Tara na ng milk tea!" sabi ng tropa. ₱50 bawat isa. Sasama ka ba?',
-     choices:[
-      {text:'Pumunta at mag-order (−₱50)',cost:50,impact:{friendship:2,stress:-2},type:'positive',feedback:'Sarap ng bonding time! Memories forever.'},
-      {text:'Sabihing mahal, hindi muna',cost:0,impact:{friendship:-1,stress:1},type:'negative',feedback:'Naiintindihan nila pero nag-iwi.'},
-      {text:'Suggest sari-sari store nalang (−₱15)',cost:15,impact:{friendship:1,stress:-1},type:'balance',feedback:'Budget-friendly pero nag-enjoy pa rin.'},
-    ]},
-    {loc:'Sa Bahay',title:'Emergency — Lagnat ni Nanay',
-     text:'Lagnat si Nanay. Kailangan ng Biogesic at Gatorade. ₱80 lahat.',
-     choices:[
-      {text:'Bilhin ang gamot (−₱80)',cost:80,impact:{family:3,health:1},type:'positive',feedback:'Inaalagaan mo ang pamilya. Magaling na si Nanay.'},
-      {text:'Sabihing wala',cost:0,impact:{family:-3,stress:2},type:'negative',feedback:'Nasaktan ang puso ni Nanay.'},
-    ]},
-    {loc:'Sa Paaralan',title:'Field Trip sa Museum!',
-     text:'May field trip sa National Museum! ₱100 kasama na ang almusal.',
-     choices:[
-      {text:'Sumali sa field trip (−₱100)',cost:100,impact:{grades:2,friendship:2,stress:-1},type:'positive',feedback:'Napakaraming natutunan! Best day ng school year.'},
-      {text:'Skip — mahal, mag-aral nalang',cost:0,impact:{stress:1,grades:1},type:'negative',feedback:'Natipid ka pero FOMO…'},
-    ]},
-    {loc:'Sa Bahay',title:'Lolo mula Batangas!',
-     text:'Dumating si Lolo! Gusto kang dalhin sa Mang Inasal. ₱80.',
-     choices:[
-      {text:'Sumama sa Mang Inasal (−₱80)',cost:80,impact:{family:3,energy:2,stress:-1},type:'positive',feedback:'Walang katumbas ang oras kasama ang Lolo!'},
-      {text:'Hindi makasama — may homework',cost:0,impact:{family:-2,grades:1},type:'balance',feedback:'Naiintindihan ni Lolo pero medyo nalungkot.'},
-    ]},
-    {loc:'Sa Klase',title:'Kontribusyon sa Birthday Party',
-     text:'Kaarawan ng kaklase. Nag-iipon ng ₱50 para sa cake at regalo.',
-     choices:[
-      {text:'Mag-ambag ng ₱50 (−₱50)',cost:50,impact:{friendship:2},type:'positive',feedback:'Masaya ang celebration! Salamat sa iyo!'},
-      {text:'Pasahan nalang — walang pera',cost:0,impact:{friendship:-1},type:'negative',feedback:'Alam ng lahat na may pera ka kanina…'},
-      {text:'Mag-ambag ng ₱25 lang (−₱25)',cost:25,impact:{friendship:1},type:'balance',feedback:'Okay din! Hindi ka nag-iwan ng barkada.'},
-    ]},
-    {loc:'Sa Sari-Sari',title:'Snack Attack!',
-     text:'Gutom ka ng merienda. Chips = ₱15, Cookies = ₱12, or homemade snacks?',
-     choices:[
-      {text:'Bumili ng chips (−₱15)',cost:15,impact:{energy:1},type:'neutral',feedback:'Masarap! Pero regular lang.'},
-      {text:'Cookies (−₱12)',cost:12,impact:{energy:1},type:'neutral',feedback:'Okay din, mas matipid pa.'},
-      {text:'Kainin na lang ang asan sa bahay',cost:0,impact:{energy:1,family:1},type:'balance',feedback:'Mabuti! Natipid at nag-appreciate si Nanay.'},
-    ]},
-    {loc:'Sa Laro',title:'Arcade Games!',
-     text:'May bagong boxing machine sa arcade. ₱20 per 3-minute game.',
-     choices:[
-      {text:'Maglaro (−₱20)',cost:20,impact:{stress:-2,energy:1},type:'positive',feedback:'Nakakarelax! Lumalabas ang stress.'},
-      {text:'Manood lang ng iba',cost:0,impact:{stress:-1},type:'neutral',feedback:'Nakita mo pa rin kaya okay lang.'},
-    ]},
-    {loc:'Sa Library',title:'School Project — Book Research',
-     text:'Kailangan ng book na ₱35 para sa research. Library ay may copy pero mabagal.',
-     choices:[
-      {text:'Bilhin ang book (−₱35)',cost:35,impact:{grades:2},type:'positive',feedback:'Complete research! A+ na yan!'},
-      {text:'Gamitin ang library copy',cost:0,impact:{grades:1},type:'neutral',feedback:'Okay din. Mas matagal lang.'},
-    ]},
-    {loc:'Sa Bahay',title:'Nanay Kailangan Tulong',
-     text:'Nanay: "Anak, may ₱20 ka ba? Kulang sa bigas." Tutulong ka?',
-     choices:[
-      {text:'Ibigay ang ₱20 (−₱20)',cost:20,impact:{family:3},type:'positive',feedback:'Napakabait mo! Proud si Nanay sa iyo.'},
-      {text:'Sabihing wala kahit may pera',cost:0,impact:{family:-2,stress:2},type:'negative',feedback:'Nahiya ka ba? Okay lang tulungan ang pamilya.'},
-    ]},
-    {loc:'Sa Basketball Court',title:'Laro with Friends!',
-     text:'Mga kaibigan ay naglalaro ng basketball. Mag-join ka? (Libre lang!)',
-     choices:[
-      {text:'Mag-join! (libre!)',cost:0,impact:{friendship:2,stress:-1,energy:-1},type:'positive',feedback:'Ang saya! Best friends talaga ang buhay.'},
-      {text:'Manood nalang sa gilid',cost:0,impact:{friendship:1},type:'neutral',feedback:'Nag-enjoy pa rin kayo pero hindi ka sumali.'},
-    ]},
-    {loc:'Online',title:'Gaming Night',
-     text:'Mga kaibigan ay nag-oorganisa ng online gaming tournament. Wala kang PC!',
-     choices:[
-      {text:'Rent PC (−₱40)',cost:40,impact:{friendship:2,stress:-2},type:'positive',feedback:'Sumali ka! Nanalo pa ang team ninyo!'},
-      {text:'Manood lang sa YouTube',cost:0,impact:{friendship:1,stress:-1},type:'neutral',feedback:'Nakita mo pa rin ang game. Okay lang.'},
-    ]},
-    {loc:'Sa Bakery',title:'Cake for Sister',
-     text:'Kaarawan ng kapatid bukas. Gusto mo ng cake — ₱80.',
-     choices:[
-      {text:'Bumili ng mahal na cake (−₱80)',cost:80,impact:{family:2,stress:1},type:'positive',feedback:'Sobrang natuwa ang sister mo. Worth it!'},
-      {text:'Bumili ng mura-murang cake (−₱30)',cost:30,impact:{family:1},type:'balance',feedback:'Natipid ka pero okay pa rin ang cake.'},
-      {text:'Gumawa ng homemade cake',cost:0,impact:{family:2},type:'balance',feedback:'DIY magic! Mas may pagmamahal pa!'},
-    ]},
-    {loc:'Sa Mall',title:'Shopping with Barkada',
-     text:'"Tara ng mall!" Pero wala kang plano bumili. Budget mo?',
-     choices:[
-      {text:'Bumili ng accessories (−₱60)',cost:60,impact:{stress:-1,friendship:1},type:'positive',feedback:'Bagong look! Feeling fashionable ka na.'},
-      {text:'Window shopping lang (libre!)',cost:0,impact:{friendship:1},type:'balance',feedback:'Nag-enjoy pa rin. Social bonding talaga ang goal.'},
-    ]},
-    {loc:'Sa Klinika',title:'May Sakit — Gamot Needed',
-     text:'May ubo at sipon ka nang dalawang araw. Gamot = ₱70.',
-     choices:[
-      {text:'Bumili ng gamot (−₱70)',cost:70,impact:{health:2,energy:1},type:'positive',feedback:'Gumaling ka agad! Importante ang kalusugan.'},
-      {text:'Tiis na lang — madadaan',cost:0,impact:{health:-1,energy:-1},type:'negative',feedback:'Lumala ang sakit. Lumiban sa school.'},
-    ]},
-    {loc:'Sa School',title:'Book Fair!',
-     text:'May book fair sa school! Mga libro ay ₱25-₱80 bawat isa.',
-     choices:[
-      {text:'Bumili ng 2 books (−₱60)',cost:60,impact:{grades:1,stress:-1},type:'positive',feedback:'Reading is fun! Knowledge acquired!'},
-      {text:'Bumili ng 1 book lang (−₱30)',cost:30,impact:{grades:1},type:'neutral',feedback:'One book lang pero valuable pa.'},
-      {text:'Manood lang, hindi bumili',cost:0,impact:{stress:-1},type:'neutral',feedback:'Nakita mo pa rin ang books. Save mo lang.'},
-    ]},
-    {loc:'Sa Araw ng Ulan',title:'Kailangan ng Payong o Damit',
-     text:'Umuulan nang malakas. Payong = ₱25, new shirt = ₱80.',
-     choices:[
-      {text:'Bilhin ang payong (−₱25)',cost:25,impact:{health:1},type:'positive',feedback:'Protektado ka mula ulan. Healthy choice!'},
-      {text:'Magsuot ng gamit mula bahay',cost:0,impact:{health:-1},type:'negative',feedback:'Nabasa ka. Akyatin mo pang ang uupstairs.'},
-    ]},
-    {loc:'Sa Maskarang Alagang Hayop',title:'Pet Food para sa Alaga',
-     text:'Ang alagang aso mo ay gutom. Pet food = ₱35 bawat linggo.',
-     choices:[
-      {text:'Bilhin ang tapat na pet food (−₱35)',cost:35,impact:{family:2},type:'positive',feedback:'Mabuti ang alagang hayop! Healthy pa.'},
-      {text:'Kainin na lang ang putahe mula bahay',cost:0,impact:{family:-1},type:'neutral',feedback:'Okay din pero may special nutrition kailangan ng aso.'},
-    ]},
-    {loc:'Sa Musikahan',title:'Guitar Lesson Kailangan Ba?',
-     text:'May guitar lessons sa music studio. ₱100 per session. Trial lesson available.',
-     choices:[
-      {text:'Mag-sign up para sa trial (−₱100)',cost:100,impact:{stress:-1,energy:-1},type:'positive',feedback:'Nagsimula na ang musical journey mo!'},
-      {text:'Self-teach gamit YouTube (libre!)',cost:0,impact:{stress:-1},type:'balance',feedback:'Budget-friendly! May maraming free tutorials online.'},
-    ]},
-    {loc:'Sa Sapaterya',title:'Shoes Naging Luma na!',
-     text:'Ang sapatos mo ay sira na. Bagong sapatos = ₱80.',
-     choices:[
-      {text:'Bilhin ang bago (−₱80)',cost:80,impact:{health:1,energy:1},type:'positive',feedback:'Comfy na! Ready ka ng mga adventure.'},
-      {text:'Iampon pa muna — bili bukas',cost:0,impact:{energy:-1},type:'negative',feedback:'Mahirap ang lakad nang parang ang sapatos ay pihit na.'},
-    ]},
-    {loc:'Sa Kaibigan',title:'Mahiram Pera mula sa Kaibigan',
-     text:'Kaibigan: "Kailangan mo ba ng ₱50? Pwede kang humiram." Accept o decline?',
-     choices:[
-      {text:'Humiram ng ₱50 (−₱50 pero temporary)',cost:50,impact:{friendship:1,stress:-1},type:'positive',feedback:'Matibay ang kaibigan mo! Pero bayaran mo agad.'},
-      {text:'Decline — iwas sa utang',cost:0,impact:{friendship:0},type:'balance',feedback:'Tama! Control lang ang budget mo.'},
-    ]},
-    {loc:'Sa Gawaing Bahay',title:'Tulong at Kumita Lunch Money',
-     text:'Lolo: "Tutulong ka? May pang-lunch ka ng bukas — ₱40 lang."',
-     choices:[
-      {text:'Tulong agad! Earn ₱40 (+₱40)',cost:-40,impact:{family:2,energy:-1},type:'positive',feedback:'Generous ang Lolo! At kumita ka pa ng lunch.'},
-      {text:'Mamaya na — matulog muna',cost:0,impact:{family:-1},type:'negative',feedback:'Naiwan ang Lolo ng tulong. Sana makinabang ka pa.'},
-    ]},
-    {loc:'Sa Halaman',title:'Plant Project para sa Science',
-     text:'May science project: Palayan ng halaman. Seeds at soil = ₱45.',
-     choices:[
-      {text:'Bilhin ang materials (−₱45)',cost:45,impact:{grades:2},type:'positive',feedback:'Maganda ang project! Science is cool!'},
-      {text:'Gumamit ng likas na materyales',cost:0,impact:{grades:1},type:'balance',feedback:'Eco-friendly! Nag-appreciate pa ang teacher.'},
-    ]},
-    {loc:'Sa Paaralan',title:'Sports Uniform Needed',
-     text:'May sports day! Uniform kailangan = ₱65.',
-     choices:[
-      {text:'Bilhin ang uniform (−₱65)',cost:65,impact:{health:1,friendship:2},type:'positive',feedback:'Handa ka na! Ready para sa sports day!'},
-      {text:'Hiram sa kaklase — libre!',cost:0,impact:{friendship:1},type:'balance',feedback:'Okay din! Budget-friendly pa.'},
-    ]},
-    {loc:'Online',title:'Mobile Game Premium Pass',
-     text:'May bagong mobile game! Premium pass = ₱50 para unlimited. Worth?',
-     choices:[
-      {text:'Bilhin ang premium (−₱50)',cost:50,impact:{stress:-2,energy:-1},type:'positive',feedback:'Game on! Unlimited entertainment for weeks!'},
-      {text:'Play lang ng free version',cost:0,impact:{stress:-1},type:'balance',feedback:'Still fun! May lilimitado lang ng features.'},
-    ]},
-  ],
+const universalScenarios = [
 
-  'jhs-upper':[
-    {loc:'Sa Kalsada',title:'Umuulan — Jeepney na!',
-     text:'Umuulan ng malakas! Jeepney = ₱20. Maglalakad ka ba at mabasa?',
-     choices:[
-      {text:'Sakay ng jeepney (−₱20)',cost:20,impact:{health:1,stress:-1},type:'neutral',feedback:'Mabuting desisyon. Nakarating ka nang tuyo.'},
-      {text:'Maglakad kahit ulan',cost:0,impact:{health:-2,energy:-1,stress:2},type:'negative',feedback:'Nabasa ka. Lagnat ka bukas. Hindi sulit ang ₱20.'},
-    ]},
-    {loc:'Sa Canteen',title:'Lunch Date?',
-     text:'Nag-iimbita ang crush mo na kumain ng tanghalian kasama. Jollibee = ₱70.',
-     choices:[
-      {text:'Sumama sa Jollibee (−₱70)',cost:70,impact:{friendship:2,stress:-2},type:'positive',feedback:'Kilig! Maganda ang tanghalian. Smile ka nang smile!'},
-      {text:'Canteen nalang (−₱45)',cost:45,impact:{energy:1},type:'neutral',feedback:'Komportable at nakakain ka nang maayos.'},
-      {text:'Kainin na lang ang baon (libre!)',cost:0,impact:{energy:1,family:1},type:'balance',feedback:'Natipid pero parang nawala ang chance. Baka susunod na lang?'},
-    ]},
-    {loc:'Sa Classroom',title:'Project Lead — Bayaran Muna',
-     text:'Ikaw ang group leader. Kailangan ng materials ngayon — ₱80. I-reimburse ng grupo later.',
-     choices:[
-      {text:'Bilhin na ngayon (−₱80)',cost:80,impact:{grades:3,stress:2,friendship:1},type:'positive',feedback:'Napakagaling na leader! Pero wag mong kalimutang hingiin ang bayad.'},
-      {text:'Sabihin sa grupo na silang bumili',cost:0,impact:{grades:-2,stress:1},type:'negative',feedback:'Walang nagbili. Walang materials. Palpak ang project.'},
-    ]},
-    {loc:'Sa Gaming Café',title:'Tournament! Tara na!',
-     text:'"May tournament sa gaming café! Tara na!" Dalawang oras = ₱120.',
-     choices:[
-      {text:'Full 2 hours (−₱120)',cost:120,impact:{friendship:2,stress:-3},type:'positive',feedback:'Nanalo pa kayo sa tournament! Epic!'},
-      {text:'1 oras lang (−₱60)',cost:60,impact:{friendship:1,stress:-2},type:'balance',feedback:'Bahagyang nag-enjoy, nakatipid din ng konti.'},
-      {text:'Skip, may exam bukas',cost:0,impact:{grades:2,friendship:-2,stress:1},type:'negative',feedback:'Mabuting desisyon para sa exam. Pero FOMO ka buong gabi.'},
-    ]},
-    {loc:'Sa Cinema',title:'Movie Date!',
-     text:'Crush mo: "Gusto mo ng movie this Saturday?" Ticket + popcorn = ₱150.',
-     choices:[
-      {text:'Go! Kilig mode on (−₱150)',cost:150,impact:{stress:-3,friendship:2,grades:-1},type:'positive',feedback:'Napakasaya! Pinakamasayang Sabado ng buhay mo.'},
-      {text:'Mag-suggest ng libre — park date',cost:0,impact:{friendship:1,stress:-1},type:'balance',feedback:'Romantic pa nga! Mas meaningful kaysa cinema.'},
-      {text:'Busy daw — nagsisinungaling',cost:0,impact:{stress:2,friendship:-1},type:'negative',feedback:'Nawala ang pagkakataon. Sana nag-go ka na lang.'},
-    ]},
-    {loc:'Sa Botika',title:'May Ubo at Sipon',
-     text:'Tatlong araw ka nang may ubo at sipon. Kailangan ng gamot — ₱80.',
-     choices:[
-      {text:'Bumili ng gamot (−₱80)',cost:80,impact:{health:3,energy:2},type:'positive',feedback:'Gumaling ka agad! Importante ang kalusugan.'},
-      {text:'Tibay lang — madadaan din ito',cost:0,impact:{health:-2,energy:-2,stress:1},type:'negative',feedback:'Lumala ang sakit mo. Lumiban ka ng tatlong araw sa school.'},
-    ]},
-    {loc:'Sa Bahay',title:'Kuryente Bill — Emergency',
-     text:'Nanay: "Anak, kulang kami sa bayad ng kuryente. ₱50 lang, kahit pati kita." Tutulong ka?',
-     choices:[
-      {text:'Ibigay ang ₱50 (−₱50)',cost:50,impact:{family:3,stress:1},type:'positive',feedback:'Napakabait mong anak! Naiyak pa si Nanay sa pasasalamat.'},
-      {text:'Sabihing wala',cost:0,impact:{family:-2,stress:2},type:'negative',feedback:'Naiintindihan ni Nanay pero medyo nasugatan ang puso niya.'},
-    ]},
-    {loc:'Sa Mall',title:'Videoke Night — Tara na!',
-     text:'"Tara videoke! ₱100 bawat isa, libre ang drinks." Kasama ang buong barkada.',
-     choices:[
-      {text:'Sumama! (−₱100)',cost:100,impact:{friendship:2,stress:-2},type:'positive',feedback:'Ito ang buhay! LOUDEST ang grupo ninyo sa buong mall.'},
-      {text:'Hindi muna — mahal',cost:0,impact:{friendship:-1,stress:1},type:'negative',feedback:'Naiintindihan nila. Pero maingay sa group chat ang kulit nila.'},
-    ]},
-    {loc:'Online',title:'Freelance Work — Logo Design',
-     text:'May kaibigan na nag-request ng logo design. ₱150 lang. Kaya mo ba?',
-     choices:[
-      {text:'Kunin ang gig (+₱150 earned!)',cost:-150,impact:{stress:1,energy:-1,grades:-1},type:'positive',feedback:'Kumita ka! Pang-treat na para sa sarili.'},
-      {text:'Decline — busy sa aral',cost:0,impact:{grades:1,stress:-1},type:'neutral',feedback:'Maayos. Prioritize ang studies.'},
-    ]},
-    {loc:'Sa Damit',title:'New Clothes!',
-     text:'May bagong damit na ₱200. Birthday mo bukas. Ipakita mo sa crush?',
-     choices:[
-      {text:'Bilhin! (−₱200)',cost:200,impact:{stress:-2,friendship:1,energy:1},type:'positive',feedback:'Bagong look! Feeling fresh and confident.'},
-      {text:'Bili ng suot lang, ₱80',cost:80,impact:{stress:-1},type:'balance',feedback:'Kasiya-siya. Mas matipid pa.'},
-      {text:'Wag na, na-stress lang',cost:0,impact:{stress:1},type:'negative',feedback:'Pakiramdam mo ay parang wala lang.'},
-    ]},
-    {loc:'Sa Skate Park',title:'Extreme Sports!',
-     text:'Mga kaibigan ay naglalaro ng skateboard. May rental = ₱40 per hour.',
-     choices:[
-      {text:'Mag-skateboard (−₱40)',cost:40,impact:{friendship:2,stress:-1,energy:-1},type:'positive',feedback:'Nakakatuwa! Pero napulon ang braso mo.'},
-      {text:'Manood lang at suportahan sila',cost:0,impact:{friendship:1},type:'neutral',feedback:'Safe choice. Nag-enjoy pa rin kayo.'},
-    ]},
-    {loc:'Sa Gym',title:'Membership Time',
-     text:'Gusto mo ng gym membership para fit. ₱600 per month.',
-     choices:[
-      {text:'Mag-sign up (−₱600)',cost:600,impact:{health:2,stress:-1,energy:-1,grades:-1},type:'positive',feedback:'Committed ka sa fitness! Pero malaking gastos monthly.'},
-      {text:'Home workout nalang (libre!)',cost:0,impact:{health:1,energy:-1},type:'balance',feedback:'Budget-friendly. YouTube workouts work too!'},
-    ]},
-    {loc:'Sa Restaurant',title:'Family Dinner',
-     text:'Special occasion! Gusto mo ng family dinner sa restaurant. ₱200.',
-     choices:[
-      {text:'Restaurant dinner (−₱200)',cost:200,impact:{family:2,stress:-1},type:'positive',feedback:'Masaya ang bonding time! Family moments are priceless.'},
-      {text:'Kaini-kainan lang sa bahay (−₱50)',cost:50,impact:{family:1},type:'balance',feedback:'Budget-friendly pero masaya pa rin.'},
-    ]},
-    {loc:'Sa Library',title:'Exam Preparation Books',
-     text:'Kailangan ng review books para sa board exam. ₱250.',
-     choices:[
-      {text:'Bilhin (−₱250)',cost:250,impact:{grades:3,stress:1},type:'positive',feedback:'Serious ka sa pag-aaral! Magsisimula ka ng review.'},
-      {text:'Sharetxt ng kaibigan',cost:0,impact:{grades:2},type:'balance',feedback:'Okay din. Sharing is caring!'},
-    ]},
-    {loc:'Sa Beach',title:'Beach Trip!',
-     text:'"Beach outing this weekend!" Transport + food = ₱300.',
-     choices:[
-      {text:'Mag-go! (−₱300)',cost:300,impact:{friendship:3,stress:-3,energy:-2},type:'positive',feedback:'Best weekend ever! Sand, sun, friends!'},
-      {text:'Skip — walang budget',cost:0,impact:{friendship:-1,stress:1},type:'negative',feedback:'Naiwan ka sa group. FOMO moment.'},
-    ]},
-    {loc:'Sa School',title:'Prom Preparations!',
-     text:'Prom na! Suit rental = ₱400, or borrow?',
-     choices:[
-      {text:'Rent suit + accessories (−₱400)',cost:400,impact:{friendship:2,stress:-2},type:'positive',feedback:'Fancy ka! Best-dressed ka sa prom!'},
-      {text:'Borrow from tito (−₱50)',cost:50,impact:{friendship:1},type:'balance',feedback:'Malalaki kaunti pero okay pa. Save ka ng pera!'},
-    ]},
-    {loc:'Online',title:'Online Shopping Spree',
-     text:'May flash sale! Trending items... pero need mo ba talaga?',
-     choices:[
-      {text:'Bumili ng items (−₱200)',cost:200,impact:{stress:-1},type:'positive',feedback:'Trending ka! Pero bakit ka nag-impulse buy?'},
-      {text:'Wishlist lang, bili next time',cost:0,impact:{stress:-1},type:'balance',feedback:'Smart! Control ang impulse buying.'},
-    ]},
-  ],
+  // ── TRANSPORT (4) ────────────────────────────────────────────
+  {
+    id:'transport-rain',
+    category:'transport',
+    loc:'Sa Kalsada',
+    title:'Umuulan — Sakay na ba?',
+    text:'Umuulan nang malakas habang pauwi ka. Mahal ang jeepney ngayon, pero mababasa ka kung lalakad.',
+    choices:[
+      {text:'Sakay ng jeepney',costScale:0.15,impact:{health:1,stress:-1},type:'neutral',feedback:'Nakarating ka nang tuyo. Mabuting desisyon habang umuulan.'},
+      {text:'Maglakad kahit ulan',costScale:0,impact:{health:-2,energy:-1,stress:2},type:'negative',feedback:'Nabasa ka. Baka magkalagnat ka bukas. Hindi sulit ang itipon.'},
+    ]
+  },
+  {
+    id:'transport-daily',
+    category:'transport',
+    loc:'Sa Kalsada',
+    title:'Jeepney o Maglakad?',
+    text:'Maliwanag naman ang panahon ngayon. Jeepney papunta school, pero 20 minuto lang naman ang layo.',
+    choices:[
+      {text:'Sakay ng jeepney',costScale:0.15,impact:{energy:1},type:'neutral',feedback:'Komportable at nakarating ka agad. Pag-isipan ang weekly transport budget.'},
+      {text:'Maglakad para makatipid',costScale:0,impact:{energy:-1,health:1},type:'balance',feedback:'Natipid ka at exercise pa! Dalawang ibon, isang bato.'},
+    ]
+  },
+  {
+    id:'transport-late',
+    category:'transport',
+    loc:'Sa Kalsada',
+    title:'Mahuhuli sa Klase!',
+    text:'Gising ka nang huli. Kung mag-jeepney ka lang, siguradong late ka. May tricycle na mas mabilis pero mas mahal.',
+    choices:[
+      {text:'Tricycle para hindi mahuli',costScale:0.25,impact:{grades:1,stress:-1},type:'positive',feedback:'Nakarating ka sa oras. Minsan okay lang gumastos para hindi mahuli.'},
+      {text:'Jeepney na lang, tanggap ang late',costScale:0.15,impact:{grades:-1,stress:1},type:'negative',feedback:'Natipid ka pero late ka pa rin. May deductions sa attendance.'},
+      {text:'Tumakbo at lumakad nang mabilis',costScale:0,impact:{energy:-2,health:-1},type:'balance',feedback:'Nakarating ka — halos! Pagod ka nang husto bago pa magsimula ang klase.'},
+    ]
+  },
+  {
+    id:'transport-weekly-budget',
+    category:'transport',
+    loc:'Sa Bahay',
+    title:'Pamasahe para sa Buong Linggo',
+    text:'Simula ng linggo. Kailangan mong mag-plan ng pamasahe para sa 5 araw na pasok. Ilang araw mag-jeepney?',
+    choices:[
+      {text:'Jeepney araw-araw (5 araw)',costScale:0.75,impact:{energy:2,stress:-1},type:'neutral',feedback:'Komportable ang buong linggo pero mabigat sa budget. Plan mo ito next week.'},
+      {text:'Jeepney 3 araw, lakad 2 araw',costScale:0.45,impact:{energy:0,health:1},type:'balance',feedback:'Magandang balance! Natipid ka at nakakuha pa ng exercise sa dalawang araw.'},
+      {text:'Maglakad araw-araw para makatipid',costScale:0,impact:{energy:-2,health:2},type:'balance',feedback:'Malaking tipid! Pero sure kang mapapagod tuwing hapon. Sulit ba?'},
+    ]
+  },
 
-  'shs':[
-    {loc:'Sa Kalsada',title:'Araw-Araw na Pamasahe',
-     text:'Jeepney papunta school — ₱20 isang paraan, ₱40 pabalik-balik. Budget mo ngayon?',
-     choices:[
-      {text:'Bayad ng buo (−₱40)',cost:40,impact:{energy:1},type:'neutral',feedback:'Komportable ang biyahe. Pag-isipan ang weekly transport budget.'},
-      {text:'Maglakad pauwi, jeepney papunta (−₱20)',cost:20,impact:{energy:-1,health:1},type:'balance',feedback:'Natipid ng kalahati at exercise pa!'},
-    ]},
-    {loc:'Sa Fastfood',title:'Tanghalian Ngayon',
-     text:'Saan ka kakain ngayon? Tatlong pagpipilian ang naghihintay...',
-     choices:[
-      {text:'Jollibee (−₱60)',cost:60,impact:{energy:2,stress:-1},type:'positive',feedback:'Masarap! Pero regular na gastos ito.'},
-      {text:'School canteen (−₱40)',cost:40,impact:{energy:1},type:'neutral',feedback:'Praktikal at malapit. Nakatipid ka ng ₱20.'},
-      {text:'Baon mula bahay (libre!)',cost:0,impact:{energy:1,health:1,family:1},type:'balance',feedback:'Best choice! Masustansya, libre, at natuwa pa si Nanay.'},
-    ]},
-    {loc:'Sa Cinema',title:'Movie + Date Night',
-     text:'Crush mo: "Libre mo ako ng movie?" Cinema + popcorn = ₱200.',
-     choices:[
-      {text:'Go — libre pa crush (−₱200)',cost:200,impact:{stress:-3,friendship:3,grades:-1},type:'positive',feedback:'KILIG! Hindi ka makatulog sa gabi sa saya.'},
-      {text:'Suggest picnic date nalang (−₱80)',cost:80,impact:{stress:-2,friendship:2},type:'balance',feedback:'Creative at matipid! Mas romantic pa nga.'},
-      {text:'Sabihing busy',cost:0,impact:{stress:1,friendship:-1},type:'negative',feedback:'Naiintindihan ng crush pero obvious na hindi ka game.'},
-    ]},
-    {loc:'Online',title:'Tutoring Job Opportunity!',
-     text:'May tutoring gig! ₱200 per 2-hour session para turuan ang kapatid ng kaklase mo.',
-     choices:[
-      {text:'Tanggapin ang gig (+₱200 earned!)',cost:-200,impact:{stress:2,energy:-1,grades:1},type:'positive',feedback:'Kumita ka! ₱200 extra! Pero pagod ka rin nang konti.'},
-      {text:'Decline — focus sa sariling aral',cost:0,impact:{grades:1,stress:-1},type:'neutral',feedback:'Maayos. Inuna mo ang sarili mong pag-aaral.'},
-    ]},
-    {loc:'Sa Klinika',title:'Lagnat + Ubo — Grabe na',
-     text:'Tatlong araw nang masakit. Doctor + gamot = ₱150. Pupunta ka ba?',
-     choices:[
-      {text:'Pumunta sa doktor (−₱150)',cost:150,impact:{health:3,energy:2,stress:-1},type:'positive',feedback:'Gumaling ka agad! Ang kalusugan ay kayamanan.'},
-      {text:'Bumili lang ng gamot (−₱70)',cost:70,impact:{health:2},type:'balance',feedback:'Okay din. Gumaling ka rin pero mas matagal.'},
-      {text:'Tibay lang — madadaan',cost:0,impact:{health:-3,energy:-2,stress:2,grades:-2},type:'negative',feedback:'Lumiban ka ng isang linggo. Mahirapan sa make-up exams.'},
-    ]},
-    {loc:'Sa Bahay',title:'Family Emergency — Dad Nagpadala',
-     text:'Dad: "Anak, may emergency. Kailangan ng ₱500. Makatulong ka kahit konti?"',
-     choices:[
-      {text:'Ibigay lahat ng mayroon (−₱500)',cost:500,impact:{family:3,stress:2},type:'positive',feedback:'Kahit kulang ka na, buo ang pagmamahal mo sa pamilya.'},
-      {text:'Ibigay ang kalahati (−₱250)',cost:250,impact:{family:2,stress:1},type:'balance',feedback:'May naibigay ka. Hindi 100% pero nandoon ka para sa kanila.'},
-      {text:'Wala kang maibigay',cost:0,impact:{family:-3,stress:2},type:'negative',feedback:'Nasaktan ang puso ng Dad. Kahit konti, may malaking kahulugan.'},
-    ]},
-    {loc:'Sa Gaming Café',title:'Tournament Weekend!',
-     text:'Gaming café tournament ngayong weekend. 2 oras = ₱100. Marami nang sumali sa barkada.',
-     choices:[
-      {text:'Full session! (−₱100)',cost:100,impact:{friendship:2,stress:-3},type:'positive',feedback:'CHAMPION ang grupo ninyo! Legendary ang gabi na iyon.'},
-      {text:'30 minuto lang (−₱50)',cost:50,impact:{friendship:1,stress:-1},type:'balance',feedback:'Bahagyang naglaro. Nakatipid at nag-enjoy pa rin.'},
-      {text:'Skip — may project',cost:0,impact:{friendship:-1,grades:2},type:'neutral',feedback:'Mabuting desisyon para sa project. Baka susunod na tournament.'},
-    ]},
-    {loc:'Sa School',title:'Review Center o Mag-self Study?',
-     text:'May review session ang kaklase mo sa review center. ₱300 bawat session.',
-     choices:[
-      {text:'Mag-enroll sa review (−₱300)',cost:300,impact:{grades:3,stress:2},type:'positive',feedback:'Malaki ang natuto mo! Pumasok ang lahat ng exam tips.'},
-      {text:'Self-study gamit YouTube',cost:0,impact:{grades:1},type:'balance',feedback:'Sapat din! May libre pang mga resources online.'},
-    ]},
-    {loc:'Sa Gabi',title:'Bili ng Sigarilyo para sa Tatay',
-     text:'Tatay: "Bili ka ng sigarilyo? ₱40 lang. May extra ka na ₱5." Bibili ka ba?',
-     choices:[
-      {text:'Bilhin (−₱40)',cost:40,impact:{family:1,health:-1,stress:1},type:'negative',feedback:'Natulungan mo si Tatay pero... smoking is not healthy.'},
-      {text:'Sabihing ayaw mo',cost:0,impact:{family:-1,stress:1},type:'balance',feedback:'Right decision! Health comes first.'},
-    ]},
-    {loc:'Sa Gym',title:'Gym Class Membership Trial',
-     text:'May gym class sa school! Trial membership = ₱100 para 1 buwan.',
-     choices:[
-      {text:'Mag-enroll (−₱100)',cost:100,impact:{health:2,stress:-1,energy:-1},type:'positive',feedback:'Fitness goal unlocked! Healthy living starts now!'},
-      {text:'Home exercises lang (libre!)',cost:0,impact:{health:1,energy:-1},type:'balance',feedback:'Okay din! YouTube workouts are effective too.'},
-    ]},
-    {loc:'Sa Concert',title:'Concert ng Favorite Artist!',
-     text:'May concert sa amphitheater! Ticket = ₱180. Sulit ba?',
-     choices:[
-      {text:'Bili ng ticket (−₱180)',cost:180,impact:{stress:-2,energy:-1,friendship:1},type:'positive',feedback:'CONCERT VIBES! Best night of the year!'},
-      {text:'Manood lang ng livestream (−₱10)',cost:10,impact:{stress:-1},type:'balance',feedback:'Okay din! At nakatipid pa ng malaki.'},
-      {text:'Skip — mahal kasi',cost:0,impact:{stress:1,friendship:-1},type:'negative',feedback:'Naiwan ka sa barkada. Baka susunod na concert.'},
-    ]},
-    {loc:'Sa Paglalakbay',title:'Gas Money para sa Motorbike',
-     text:'Motorbike mo ay mauubos ang gas. Petrol = ₱150. Bibili ka ba?',
-     choices:[
-      {text:'Bili ng gas (−₱150)',cost:150,impact:{energy:1},type:'neutral',feedback:'Kailangan mo para makarating sa school. Transportation matters.'},
-      {text:'Maglakad nalang / Jeepney',cost:0,impact:{energy:-1},type:'negative',feedback:'Pagod ka nang dumalang biyahe. Motorista ka na dapat.'},
-    ]},
-    {loc:'Sa Barber',title:'Haircut — Grooming Time',
-     text:'Hair mo ay mahahaba na. Barber = ₱80. Fresh look?',
-     choices:[
-      {text:'Mag-haircut (−₱80)',cost:80,impact:{stress:-1,energy:1},type:'positive',feedback:'Fresh! Confident ka na mag-papakita sa school.'},
-      {text:'DIY haircut sa bahay',cost:0,impact:{stress:-1},type:'balance',feedback:'Matipid! DIY results ay okay naman.'},
-    ]},
-    {loc:'Sa Bahay',title:'Birthday Party — Hosting!',
-     text:'Birthday mo bukas! Party needs: food + drinks = ₱200.',
-     choices:[
-      {text:'Host na ng party (−₱200)',cost:200,impact:{friendship:3,family:1,stress:-1},type:'positive',feedback:'Party! Laging memorable ang celebration mo!'},
-      {text:'Quiet celebration lang sa bahay',cost:0,impact:{family:1},type:'balance',feedback:'Okay din! Intimate family time pa.'},
-    ]},
-    {loc:'Online',title:'Online Programming Course',
-     text:'May free-to-paid programming course. Premium = ₱120 para sa certificate.',
-     choices:[
-      {text:'Mag-enroll para sa certificate (−₱120)',cost:120,impact:{grades:2,stress:1,energy:-1},type:'positive',feedback:'New skill unlocked! Career-ready na.'},
-      {text:'Free version lang — walang certificate',cost:0,impact:{grades:1},type:'balance',feedback:'Okay din! Matuto pa rin pero walang proof.'},
-    ]},
-    {loc:'Sa Tekniko',title:'Phone Screen Repair Emergency',
-     text:'Screen mo ay nasira. Repair = ₱350. Kaya mo ba?',
-     choices:[
-      {text:'I-repair agad (−₱350)',cost:350,impact:{stress:1,energy:1},type:'positive',feedback:'Dapat seryoso ka sa gadgets. Fixed agad!'},
-      {text:'Gamitin pa kahit sira',cost:0,impact:{stress:2,energy:-1},type:'negative',feedback:'Mahirap gamitin. Stress-inducing talaga.'},
-    ]},
-    {loc:'Sa Mall',title:'New Earbuds/Headphones',
-     text:'Earbuds mo ay nutsa na. Bagong earbuds = ₱200.',
-     choices:[
-      {text:'Bilhin ang bago (−₱200)',cost:200,impact:{stress:-1,energy:1},type:'positive',feedback:'Music therapy activated! Better sound quality!'},
-      {text:'Alam mo, okay pa yan kahit matanda',cost:0,impact:{stress:-1},type:'neutral',feedback:'Budget-conscious! Okay pa rin ang tunog.'},
-    ]},
-  ],
+  // ── FOOD (5) ─────────────────────────────────────────────────
+  {
+    id:'food-lunch',
+    category:'food',
+    loc:'Sa Canteen',
+    title:'Tanghalian na!',
+    text:'Gutom ka na. Tatlong pagpipilian ang naghihintay sa iyo...',
+    choices:[
+      {text:'Canteen meal',costScale:0.35,impact:{energy:2,health:1},type:'positive',feedback:'Masustansya at malapit. Praktikal na pagpipilian.'},
+      {text:'Fastfood kasama friends',costScale:0.55,impact:{energy:2,friendship:2,stress:-1},type:'positive',feedback:'Masaya! Pero malaki ang nagastos kumpara sa canteen.'},
+      {text:'Kainin na lang ang baon',costScale:0,impact:{energy:1,health:1,family:1},type:'balance',feedback:'Pinakamatalinong pagpipilian! Masustansya, libre, at natuwa pa si Nanay.'},
+    ]
+  },
+  {
+    id:'food-merienda',
+    category:'food',
+    loc:'Sa Sari-Sari Store',
+    title:'Snack Attack!',
+    text:'Gutom ka ng merienda. May tindahan sa tabi ng school.',
+    choices:[
+      {text:'Bumili ng snack',costScale:0.12,impact:{energy:1,stress:-1},type:'neutral',feedback:'Masarap! Pero regular na gastos ito linggu-linggo.'},
+      {text:'Kainin na lang ang nasa bahay',costScale:0,impact:{energy:1,family:1},type:'balance',feedback:'Mabuti! Natipid at nag-appreciate si Nanay.'},
+    ]
+  },
+  {
+    id:'food-drinks',
+    category:'food',
+    loc:'Sa Labas ng School',
+    title:'Mainit na Hapon — Inumin?',
+    text:'Grabe ang init ngayong hapon. May drink stand sa labas ng school — juice, sago, milk tea. Mura-mura lang.',
+    choices:[
+      {text:'Bumili ng malamig na inumin',costScale:0.14,impact:{energy:1,stress:-1,health:1},type:'neutral',feedback:'Ahh, refreshing! Kailangan mo talaga lalo na sa ganitong init.'},
+      {text:'Tubig lang mula sa gripo',costScale:0,impact:{energy:0},type:'balance',feedback:'Libre at okay naman. Hydrated ka pa rin naman.'},
+    ]
+  },
+  {
+    id:'food-baon-forgot',
+    category:'food',
+    loc:'Sa Paaralan',
+    title:'Nakalimutang Magdala ng Baon!',
+    text:'Pagdating mo sa school, naalala mo — naiwanan mo ang baon sa bahay. Wala kang pagkain para sa buong araw.',
+    choices:[
+      {text:'Bumili sa canteen',costScale:0.35,impact:{energy:2,health:1},type:'neutral',feedback:'Okay, nakaraos ka. Pero dagdag gastos ito na hindi nakaplano.'},
+      {text:'Hiram ng pagkain sa kaibigan',costScale:0,impact:{friendship:1,energy:1},type:'balance',feedback:'Mabuting kaibigan! Bayaran mo rin siya bukas.'},
+      {text:'Mag-tiis hanggang uwi',costScale:0,impact:{energy:-2,health:-1,grades:-1},type:'negative',feedback:'Gutom ka nang husto. Nahirapan kang mag-concentrate sa klase.'},
+    ]
+  },
+  {
+    id:'food-weekly-groceries',
+    category:'food',
+    loc:'Sa Palengke / Tindahan',
+    title:'Pang-Linggo na Pagkain',
+    text:'Halos ubos na ang pagkain sa bahay. Kailangan mag-grocery para sa susunod na ilang araw.',
+    choices:[
+      {text:'Mag-grocery ng maayos',costScale:0.8,impact:{energy:2,health:2,family:1},type:'positive',feedback:'Smart! Mas mura at mas masustansya kaysa kain sa labas araw-araw.'},
+      {text:'Instant noodles at canned goods lang',costScale:0.25,impact:{energy:1,health:-1},type:'balance',feedback:'Nakatipid ka pero hindi masustansya. Ingatan ang kalusugan.'},
+      {text:'Kain sa labas na lang araw-araw',costScale:1.1,impact:{energy:1,stress:1},type:'negative',feedback:'Masarap pero grabe ang nagastos! Mas mahal ito ng halos doble sa grocery.'},
+    ]
+  },
 
-  'college-1':[
-    {loc:'Sa Dorm',title:'Bayad sa Kuryente — Roommate',
-     text:'Roommate: "Pre, ₱300 ang share mo sa electric bill. Bukas na ang deadline."',
-     choices:[
-      {text:'Bayaran ngayon (−₱300)',cost:300,impact:{stress:1,friendship:1},type:'positive',feedback:'Responsable kang roommate! Hindi ka makakalimutan niya iyan.'},
-      {text:'Sabihing susunod nalang',cost:0,impact:{stress:2,friendship:-2},type:'negative',feedback:'Naiinis na ang roommate mo. Huwag gawing ugali ito.'},
-    ]},
-    {loc:'Sa Grocery',title:'Weekly Groceries',
-     text:'Kailangan ng pagkain para sa buong linggo. Dalawang pagpipilian...',
-     choices:[
-      {text:'Tamang groceries (−₱200)',cost:200,impact:{energy:2,health:2,stress:-1},type:'positive',feedback:'Smart! Mas mura at mas masustansya kaysa kain sa labas araw-araw.'},
-      {text:'Kain sa labas araw-araw (−₱350)',cost:350,impact:{energy:1,stress:1},type:'negative',feedback:'Masarap pero grabe ang nagastos. ₱150 extra na nagastos.'},
-    ]},
-    {loc:'Sa Restaurant',title:'Dinner Date sa SO',
-     text:'SO: "Tara na dinner date?" Budget sa resto: ₱300.',
-     choices:[
-      {text:'Go! Dinner date (−₱300)',cost:300,impact:{stress:-3,friendship:3},type:'positive',feedback:'Perpektong gabi. Worth every peso.'},
-      {text:'Suggest dorm-cooked dinner (−₱50)',cost:50,impact:{stress:-2,friendship:2},type:'balance',feedback:'MAS ROMANTIC! Luto kayo ng luto sa dorm. Iconic.'},
-      {text:'Busy ngayon — ulit na lang',cost:0,impact:{stress:1,friendship:-2},type:'negative',feedback:'Disappointed ang SO. Balanse ang pag-aaral at relasyon.'},
-    ]},
-    {loc:'Sa Bookstore',title:'Textbooks — Required ba?',
-     text:'Textbooks para sa 3 subjects: ₱500 average. Lahat required ayon sa syllabus.',
-     choices:[
-      {text:'Bilhin lahat (−₱500)',cost:500,impact:{grades:3,stress:-1},type:'positive',feedback:'Handa ka sa lahat ng klase! Investment ito sa grades mo.'},
-      {text:'Share sa kaklase (−₱100)',cost:100,impact:{grades:1,friendship:1},type:'balance',feedback:'Matipid at team player! Pero laging maaga para makuha ang libro.'},
-      {text:'I-photocopy ang kailangan (−₱50)',cost:50,impact:{grades:0,stress:1},type:'balance',feedback:'Okay lang sa ngayon pero inconvenient kapag malaki ang assignments.'},
-    ]},
-    {loc:'Sa Clinic',title:'Hindi Maganda ang Pakiramdam',
-     text:'Lagnat at sakit ng ulo nang dalawang araw. Clinic visit = ₱200.',
-     choices:[
-      {text:'Pumunta sa clinic (−₱200)',cost:200,impact:{health:3,energy:1},type:'positive',feedback:'Gumaling ka agad. Huwag ipagpaliban ang kalusugan.'},
-      {text:'Magpahinga lang sa dorm',cost:0,impact:{health:1,stress:-1},type:'neutral',feedback:'Okay din kung banayad lang. Pero subaybayan ang kondisyon mo.'},
-    ]},
-    {loc:'Online',title:'Part-Time Tutoring Job!',
-     text:'May tutoring gig: ₱300 per 3-hour session. Puwede isang beses sa linggo.',
-     choices:[
-      {text:'Tanggapin ang gig (+₱300 earned!)',cost:-300,impact:{stress:2,energy:-2},type:'positive',feedback:'Kumita ka ng sarili mong pera! Pero bantayan ang energy mo.'},
-      {text:'Mag-focus sa pag-aaral muna',cost:0,impact:{grades:2,stress:-1},type:'neutral',feedback:'Maayos na desisyon. Inuna mo ang studies.'},
-    ]},
-    {loc:'Sa School',title:'Group Project — Ikaw Muli',
-     text:'Materials para sa final project: ₱150. Karamihan sa grupo ay hindi makapag-ambag.',
-     choices:[
-      {text:'Bayaran lahat ikaw (−₱150)',cost:150,impact:{grades:2,stress:2,friendship:1},type:'positive',feedback:'Maganda ang project! Pero discuss sa grupo ang fairness.'},
-      {text:'Fair split — ₱50 ka lang (−₱50)',cost:50,impact:{grades:1},type:'balance',feedback:'Tama! Lahat may responsibilidad sa grupo.'},
-    ]},
-    {loc:'Sa School',title:'Thesis / Capstone Expenses',
-     text:'Printing ng thesis chapters + materials = ₱400 ngayong buwan.',
-     choices:[
-      {text:'Full budget para sa thesis (−₱400)',cost:400,impact:{grades:3,stress:2},type:'positive',feedback:'Handa ang thesis! Maliwanag ang kinabukasan mo.'},
-      {text:'Minimum expenses lang (−₱150)',cost:150,impact:{grades:1,stress:1},type:'balance',feedback:'Nakatipid ka pero may mga bagay na kulang. Kumpletuhin mo rin.'},
-    ]},
-    {loc:'Sa Dorm Night',title:'Late-Night Food Delivery',
-     text:'Gutom ka nang gabi. Food delivery = ₱180 para sa set meal + drinks.',
-     choices:[
-      {text:'Order na ng pagkain (−₱180)',cost:180,impact:{energy:2,stress:-1},type:'positive',feedback:'Comfort food! Salamat delivery services!'},
-      {text:'Mag-instant noodles lang (−₱15)',cost:15,impact:{energy:1},type:'balance',feedback:'Budget version pero nakain ka pa rin!'},
-    ]},
-    {loc:'Sa Bookstore',title:'Office Supplies para sa Internship',
-     text:'Internship mo ay nangangailangan ng supplies: folder + pen set = ₱60.',
-     choices:[
-      {text:'Bilhin lahat (−₱60)',cost:60,impact:{grades:1},type:'positive',feedback:'Professional ka na! Ready para sa internship.'},
-      {text:'Gumamit ng nasa bahay',cost:0,impact:{grades:-1},type:'neutral',feedback:'Okay lang pero impression matters sa internship.'},
-    ]},
-    {loc:'Sa Gym',title:'Yoga / Fitness Class Membership',
-     text:'Yoga class para sa stress relief. Monthly pass = ₱250.',
-     choices:[
-      {text:'Mag-enroll (−₱250)',cost:250,impact:{stress:-2,health:2},type:'positive',feedback:'Zen mode activated! Mental health first!'},
-      {text:'YouTube yoga lang (libre!)',cost:0,impact:{stress:-1,health:1},type:'balance',feedback:'Free yoga! Still effective para sa relaxation.'},
-    ]},
-    {loc:'Sa Career Fair',title:'Career Fair Entry + Workshop',
-     text:'Annual career fair. Registration + workshops = ₱120.',
-     choices:[
-      {text:'Mag-register (−₱120)',cost:120,impact:{grades:1,stress:-1},type:'positive',feedback:'Network opportunities! Future job leads!'},
-      {text:'Mag-attend lang ng free sessions',cost:0,impact:{grades:0},type:'balance',feedback:'Okay din! Maraming free seminar.'},
-    ]},
-    {loc:'Sa Laundry',title:'Laundry + Dry Cleaning Service',
-     text:'Maraming damit para laba. Laundry shop = ₱150 sa linggo.',
-     choices:[
-      {text:'I-laundry lahat (−₱150)',cost:150,impact:{energy:1,health:1},type:'positive',feedback:'Clean clothes always! Worth the convenience.'},
-      {text:'Hand wash mo lang (−₱5)',cost:5,impact:{energy:-1},type:'balance',feedback:'Matipid ka pero nakakasakripisyo ng oras.'},
-    ]},
-    {loc:'Sa Kape',title:'Coffee + Study Sesh with Friends',
-     text:'Group study sa coffee shop. Coffee + pastry = ₱120.',
-     choices:[
-      {text:'Mag-coffee run (−₱120)',cost:120,impact:{stress:-1,friendship:1,energy:1},type:'positive',feedback:'Coffee and friends! Perfect study vibe!'},
-      {text:'Mag-study sa library lang (libre!)',cost:0,impact:{stress:-1},type:'balance',feedback:'Free venue! Silent pero productive.'},
-    ]},
-    {loc:'Sa Dorm',title:'Laptop Emergency Repair',
-     text:'Laptop mo ay pagsisikatan na. Repair = ₱400 urgent service.',
-     choices:[
-      {text:'I-repair agad (−₱400)',cost:400,impact:{stress:1,grades:2},type:'positive',feedback:'Kailangan mo para sa academics. Worth it talaga!'},
-      {text:'Hiram na lang ng kaibigan',cost:0,impact:{stress:1,friendship:-1},type:'balance',feedback:'Okay din pero limited lang ang oras.'},
-    ]},
-    {loc:'Sa Parking',title:'Monthly Parking Permit',
-     text:'Car mo ay nangangailangan ng parking permit sa dorm. ₱300 per month.',
-     choices:[
-      {text:'Bayaran ang permit (−₱300)',cost:300,impact:{energy:1},type:'neutral',feedback:'Kailangan para hindi ma-tow ang sasakyan.'},
-      {text:'Street parking lang — walang permit',cost:0,impact:{stress:1},type:'negative',feedback:'Risky! Baka ma-ticket ka pa.'},
-    ]},
-    {loc:'Sa Org',title:'Class Social Fund Contribution',
-     text:'Class social fund para sa events: ₱100 per student.',
-     choices:[
-      {text:'Mag-contribute (−₱100)',cost:100,impact:{friendship:1},type:'positive',feedback:'Team player! Kasama ka sa lahat ng class events.'},
-      {text:'Skip contribution — walang pera',cost:0,impact:{friendship:-1},type:'negative',feedback:'Medyo isolated ka sa class activities. Sana next time.'},
-    ]},
-    {loc:'Sa Salon',title:'Hair Treatment / Massage',
-     text:'Stressed ka na talaga. Hair treatment = ₱200, massage = ₱250.',
-     choices:[
-      {text:'Hair treatment (−₱200)',cost:200,impact:{stress:-2},type:'positive',feedback:'Pampered ka! Deserve mo yan after exams.'},
-      {text:'Massage session (−₱250)',cost:250,impact:{stress:-3,health:1},type:'positive',feedback:'Full relaxation mode! Best therapy ever!'},
-      {text:'DIY self-care lang (−₱20)',cost:20,impact:{stress:-1},type:'balance',feedback:'Budget-friendly wellness! YouTube tutorials FTW.'},
-    ]},
-    {loc:'Online',title:'Online Certification Course',
-     text:'May online course para sa professional development. Certificate = ₱180.',
-     choices:[
-      {text:'Mag-enroll para sa certificate (−₱180)',cost:180,impact:{grades:2,stress:1},type:'positive',feedback:'Resume-builder! Career boost incoming!'},
-      {text:'Free version lang',cost:0,impact:{grades:1},type:'balance',feedback:'Still learn pero walang official certificate.'},
-    ]},
-    {loc:'Sa Bookstore',title:'Reference Books para sa Research',
-     text:'Kailangan ng specialized books para sa thesis. ₱350 total.',
-     choices:[
-      {text:'Bilhin ang books (−₱350)',cost:350,impact:{grades:2},type:'positive',feedback:'Complete resources! Research mo ay solid.'},
-      {text:'Library rentals lang (−₱50)',cost:50,impact:{grades:1},type:'balance',feedback:'Matipid ka! Library has good collections anyway.'},
-    ]},
-  ],
-};
+  // ── FAMILY (5) ───────────────────────────────────────────────
+  {
+    id:'family-sick',
+    category:'family',
+    loc:'Sa Bahay',
+    title:'May Nagkasakit sa Bahay',
+    text:'Isang miyembro ng pamilya mo ay may lagnat at kailangan ng gamot. Ikaw ang pinakamalapit na may pera.',
+    choices:[
+      {text:'Ibigay ang pera para sa gamot',costScale:0.5,impact:{family:3,health:1},type:'positive',feedback:'Nagpasalamat ang pamilya mo nang husto. Ang pag-aalaga ay walang katumbas.'},
+      {text:'Sabihing wala kahit may pera',costScale:0,impact:{family:-3,stress:2},type:'negative',feedback:'Nasaktan ang pamilya mo. Laging nandoon para sa kanila tuwing kailangan nila.'},
+    ]
+  },
+  {
+    id:'family-help',
+    category:'family',
+    loc:'Sa Bahay',
+    title:'Nanay/Tatay Kulang sa Pera',
+    text:'Nagtatanong si Nanay kung may maliliit kang maibigay para sa pagkain o bayarin. Kulang sila ngayong araw.',
+    choices:[
+      {text:'Ibigay ang kaya mo',costScale:0.2,impact:{family:3},type:'positive',feedback:'Napakabait mo! Ang tulong sa pamilya ay hindi kailanman nasayang.'},
+      {text:'Sabihing wala kahit may pera',costScale:0,impact:{family:-2,stress:2},type:'negative',feedback:'Okay lang umamin na may pera. Mas okay ang maging tapat sa pamilya.'},
+    ]
+  },
+  {
+    id:'family-chores',
+    category:'family',
+    loc:'Sa Bahay',
+    title:'Tulong sa Bahay — May Bayad!',
+    text:'Nag-aalok ang magulang mo ng bayad kung tutulungan mo sa gawaing bahay ngayong hapon.',
+    choices:[
+      {text:'Tulong agad! (kumita)',costScale:-0.2,impact:{family:2,energy:-1},type:'positive',feedback:'Mabuti! Kumita at natulungan ang pamilya. Win-win!'},
+      {text:'Maglaro / mag-relax muna',costScale:0,impact:{family:-1},type:'negative',feedback:'Naiwan ang pamilya ng tulong. Sana sundin mo na next time.'},
+    ]
+  },
+  {
+    id:'family-visitor',
+    category:'family',
+    loc:'Sa Bahay',
+    title:'Bisita mula sa Probinsya!',
+    text:'Dumating ang kamag-anak mula sa probinsya. Gusto nilang ilabas ka nila para manghain. Kailangan mo ring mag-ambag.',
+    choices:[
+      {text:'Sumama at mag-ambag',costScale:0.3,impact:{family:3,stress:-1},type:'positive',feedback:'Ang saya ng reunion! Mga kwento at tawanan hanggang gabi. Priceless.'},
+      {text:'Sumama pero hindi mag-ambag',costScale:0,impact:{family:1,stress:-1},type:'balance',feedback:'Nandoon ka para sa pamilya. Okay din kahit hindi ka nag-ambag.'},
+      {text:'Busy — umakyat sa kwarto',costScale:0,impact:{family:-2},type:'negative',feedback:'Naghintay sila sa iyo. Minsan, ang family time ay mas mahalaga kaysa trabaho.'},
+    ]
+  },
+  {
+    id:'family-sibling',
+    category:'family',
+    loc:'Sa Bahay',
+    title:'Kapatid Kailangan ng School Money',
+    text:'Kapatid mo: "Kulang pera ko para sa project. Pwede kang magpahiram? Ibabalik ko pagka-allowance."',
+    choices:[
+      {text:'Ipahiram ang pera',costScale:0.25,impact:{family:2},type:'positive',feedback:'Mabuting kapatid ka! Siguraduhin lang na ibabalik niya.'},
+      {text:'Ibigay na — hindi na kailangang ibalik',costScale:0.25,impact:{family:3},type:'positive',feedback:'Napakabuting kapatid! Sobrang natuwa siya.'},
+      {text:'Hindi — baka hindi ibalik',costScale:0,impact:{family:-1},type:'negative',feedback:'Naiintindihan mo ang concern pero nasaktan ang pakiramdam ng kapatid mo.'},
+    ]
+  },
 
+  // ── FRIENDS / SOCIAL (4) ─────────────────────────────────────
+  {
+    id:'social-barkada',
+    category:'social',
+    loc:'Sa Labas',
+    title:'Barkada Outing!',
+    text:'"Tara na!" sabi ng mga kaibigan. May lakad sila — kain, mall, o kape. Budget kailangan.',
+    choices:[
+      {text:'Sumama at mag-enjoy',costScale:0.4,impact:{friendship:2,stress:-2},type:'positive',feedback:'Ang saya ng samahan! Memories for life.'},
+      {text:'Suggest mas murang lugar',costScale:0.1,impact:{friendship:1,stress:-1},type:'balance',feedback:'Budget-friendly pero nag-enjoy pa rin. Good compromise!'},
+      {text:'Mag-decline — walang budget',costScale:0,impact:{friendship:-1,stress:1},type:'negative',feedback:'Naiintindihan nila pero may FOMO ka rin. Sana mag-ipon ka para sa susunod.'},
+    ]
+  },
+  {
+    id:'social-birthday',
+    category:'social',
+    loc:'Sa Klase',
+    title:'Birthday ng Kaibigan!',
+    text:'Kaarawan ng kaibigan o kaklase. Nag-aayos ang grupo ng regalo o cake. Magkano ang iaambag mo?',
+    choices:[
+      {text:'Mag-ambag ng buong share',costScale:0.35,impact:{friendship:2},type:'positive',feedback:'Masaya ang celebration! Salamat sa iyo.'},
+      {text:'Mag-ambag ng kalahati',costScale:0.18,impact:{friendship:1},type:'balance',feedback:'Okay din! Hindi ka nag-iwan ng barkada.'},
+      {text:'Gumawa ng handmade card (libre)',costScale:0,impact:{friendship:1},type:'balance',feedback:'Mas may pagmamahal pa nga! Creative at matipid.'},
+      {text:'Wala — wala kang pera ngayon',costScale:0,impact:{friendship:-2},type:'negative',feedback:'Medyo nalungkot ang kaibigan mo. Sana may konti kang maibigay next time.'},
+    ]
+  },
+  {
+    id:'social-peer-pressure',
+    category:'social',
+    loc:'Sa Labas',
+    title:'Pinipilit ng Barkada',
+    text:'"Halika na! Isang beses lang ito!" Ang barkada mo ay nag-iinsist na sumama ka sa isang mahal na aktibidad na hindi mo nakaplano.',
+    choices:[
+      {text:'Sumama — baka mawala ang pagkakataon',costScale:0.6,impact:{friendship:2,stress:-1},type:'positive',feedback:'Nag-enjoy ka! Pero ngayon ay kulang na ang budget mo para sa ibang kailangan.'},
+      {text:'Mag-explain ng budget at mag-decline',costScale:0,impact:{friendship:0,stress:-1},type:'balance',feedback:'Mature na sagot! Tunay na kaibigan ang mag-uunawa sa iyong budget.'},
+      {text:'Umutang sa kaibigan para sumama',costScale:0.6,impact:{friendship:1,stress:2},type:'negative',feedback:'Nag-enjoy ka pero may utang ka na ngayon. Stress sa susunod na linggo.'},
+    ]
+  },
+  {
+    id:'social-group-gift',
+    category:'social',
+    loc:'Sa Klase',
+    title:'Group Gift para sa Teacher',
+    text:'May espesyal na okasyon ang paboritong teacher mo. Nag-iipon ang klase para sa regalo. ₱50 bawat isa ang hinihingi.',
+    choices:[
+      {text:'Mag-ambag ng buong ₱50',costScale:0.35,impact:{friendship:1,grades:1},type:'positive',feedback:'Masaya ang buong klase! At napapansin ka ng teacher.'},
+      {text:'Mag-ambag ng konti lang',costScale:0.15,impact:{friendship:0},type:'balance',feedback:'Okay din. Nag-ambag ka naman kahit konti.'},
+      {text:'Hindi mag-ambag — gusto mong makatipid',costScale:0,impact:{friendship:-1},type:'negative',feedback:'Napansin ng mga kaklase. Minsan ang maliit na ambag ay malaki ang kahulugan.'},
+    ]
+  },
 
-scenariosDB['college-2'] = scenariosDB['college-1'];
+  // ── ACADEMICS (4) ────────────────────────────────────────────
+  {
+    id:'academics-materials',
+    category:'academics',
+    loc:'Sa Bookstore',
+    title:'Project Materials Kailangan',
+    text:'May group project. Kailangan ng poster board, markers, at iba pang materials. Karamihan sa grupo ay wala.',
+    choices:[
+      {text:'Bilhin lahat ikaw lang',costScale:0.45,impact:{grades:3,stress:2,friendship:1},type:'positive',feedback:'Maganda ang project! Pero usapan ang fairness sa grupo next time.'},
+      {text:'Fair split — bayaran ang sariling share',costScale:0.15,impact:{grades:1},type:'balance',feedback:'Tama! Lahat may responsibilidad sa grupo.'},
+      {text:'Gumamit ng likas / recycled na materials',costScale:0,impact:{grades:1},type:'balance',feedback:'Eco-friendly at creative! Nag-appreciate pa ang teacher.'},
+    ]
+  },
+  {
+    id:'academics-supplies',
+    category:'academics',
+    loc:'Sa Paaralan',
+    title:'School Supplies Nasira na',
+    text:'Gutay na ang notebook mo at walang tintang pen. Kailangan mo para sa klase bukas.',
+    choices:[
+      {text:'Bumili ng bago',costScale:0.2,impact:{grades:2},type:'positive',feedback:'Handa ka na sa notes! Gagana ka ng maayos ngayon.'},
+      {text:'Gumamit ng naiiwan pang papel',costScale:0,impact:{grades:-1},type:'negative',feedback:'Mahirap i-notes nang maayos. Baka mahuli ka sa leksyon.'},
+    ]
+  },
+  {
+    id:'academics-review',
+    category:'academics',
+    loc:'Sa Paaralan',
+    title:'Exam Bukas — Kailangan ng Review Materials',
+    text:'Malaking exam bukas. Wala kang sariling reviewer. Pwedeng bumili ng printed notes o mag-photocopy.',
+    choices:[
+      {text:'Bumili ng reviewer',costScale:0.2,impact:{grades:2,stress:-1},type:'positive',feedback:'Handa ka! Mas malinis at organisado ang review mo.'},
+      {text:'Mag-photocopy ng notes ng kaibigan',costScale:0.08,impact:{grades:1,friendship:1},type:'balance',feedback:'Matipid at nakatulong pa ang kaibigan mo. Win-win!'},
+      {text:'Mag-aral na lang gamit phone/memory',costScale:0,impact:{grades:0,energy:-1},type:'neutral',feedback:'Kaya mo naman. Pero mas mahirap mag-review nang walang materials.'},
+    ]
+  },
+  {
+    id:'academics-field-trip',
+    category:'academics',
+    loc:'Sa Paaralan',
+    title:'Field Trip o Educational Event!',
+    text:'May educational na lakad ang school. Kasama na ang bus at entrance fee. Required ba ito?',
+    choices:[
+      {text:'Sumali — educational naman',costScale:0.75,impact:{grades:2,friendship:2,stress:-1},type:'positive',feedback:'Napakaraming natutunan! Best day ng school year. Worth every peso.'},
+      {text:'Mag-pa-excuse — mahal kasi',costScale:0,impact:{grades:-1,friendship:-1,stress:1},type:'negative',feedback:'Natipid ka pero FOMO ka buong linggo. May missed lessons ka pa rin.'},
+    ]
+  },
 
-// ─── TOAST ─────────────────────────────────────────────────
-function showToast(msg,type='tip'){
-  const t=document.getElementById('toast');
-  if(!t) return;
-  t.textContent=msg;t.className='toast show '+type;
-  setTimeout(()=>{if(t) t.className='toast';},2800);
+  // ── HEALTH (4) ───────────────────────────────────────────────
+  {
+    id:'health-sick',
+    category:'health',
+    loc:'Sa Botika',
+    title:'May Ubo at Sipon — 3 Araw na',
+    text:'Hindi ka na gumagaling. Kailangan na ng gamot. Pupunta ka ba sa botika o magtitiis pa?',
+    choices:[
+      {text:'Bumili ng gamot',costScale:0.5,impact:{health:3,energy:2},type:'positive',feedback:'Gumaling ka agad! Ang kalusugan ay kayamanan. Huwag ipagpaliban.'},
+      {text:'Tibay lang — madadaan din',costScale:0,impact:{health:-2,energy:-2,stress:1,grades:-1},type:'negative',feedback:'Lumala ang sakit mo. Lumiban ka pa sa school. Hindi sulit ang tiis.'},
+    ]
+  },
+  {
+    id:'health-hygiene',
+    category:'health',
+    loc:'Sa Tindahan',
+    title:'Kailangan ng Personal Hygiene Items',
+    text:'Ubos na ang sabon, shampoo, at toothpaste mo. Kailangan bilhin ngayon. Pwedeng brand o generic.',
+    choices:[
+      {text:'Branded items',costScale:0.4,impact:{health:1,stress:-1},type:'positive',feedback:'Quality products! Pero regular na gastos ito buwan-buwan.'},
+      {text:'Generic / sachets lang',costScale:0.15,impact:{health:1},type:'balance',feedback:'Smart! Parehong epektibo. Malaking tipid sa buong taon.'},
+      {text:'Hiram muna sa kasambahay/kaibigan',costScale:0,impact:{health:0,friendship:-1},type:'negative',feedback:'Nakahiram ka — pero hindi magandang ugali ito palagi.'},
+    ]
+  },
+  {
+    id:'health-exercise',
+    category:'health',
+    loc:'Sa Parke / Gym',
+    title:'Oras na para mag-Exercise!',
+    text:'Matagal ka nang hindi nag-eexercise. May libre pang parke sa tabi, o may bayad na gym.',
+    choices:[
+      {text:'Mag-gym (may bayad)',costScale:0.5,impact:{health:2,stress:-2,energy:-1},type:'positive',feedback:'Serious ka sa fitness! Pero regular na gastos ito. Worth it ba buwan-buwan?'},
+      {text:'Mag-exercise sa parke (libre!)',costScale:0,impact:{health:2,stress:-1,energy:-1},type:'balance',feedback:'Libre at epektibo pa rin! Fresh air pa ang bonus.'},
+      {text:'Bukas na lang — pagod ngayon',costScale:0,impact:{health:-1,stress:1},type:'negative',feedback:'"Bukas na lang" palagi ang sabi mo. Hindi pa rin tayo nag-eexercise.'},
+    ]
+  },
+  {
+    id:'health-mental',
+    category:'health',
+    loc:'Sa Bahay',
+    title:'Stressed Ka na — Kailangan ng Break',
+    text:'Grabe ang stress mo ngayon. Matagal ka nang hindi nagpapahinga nang maayos. Ano ang gagawin mo?',
+    choices:[
+      {text:'Mag-self-care — treat yourself (may bayad)',costScale:0.4,impact:{stress:-3,energy:2,health:1},type:'positive',feedback:'Deserve mo ito! Hindi selfishness ang mag-alaga ng sarili. Essential ito.'},
+      {text:'Mag-pahinga lang sa bahay (libre)',costScale:0,impact:{stress:-2,energy:2},type:'balance',feedback:'Okay din! Minsan ang simpleng pahinga sa bahay ay sapat na.'},
+      {text:'Push through — kaya pa',costScale:0,impact:{stress:2,health:-1,grades:-1},type:'negative',feedback:'Burnout ang katapusan nito. Huwag balewalain ang mental health.'},
+    ]
+  },
+
+  // ── LEISURE / TECH (4) ───────────────────────────────────────
+  {
+    id:'leisure-gaming',
+    category:'leisure',
+    loc:'Sa Gaming Café / Arcade',
+    title:'Game Time with Friends!',
+    text:'Nag-iimbitahan ang mga kaibigan na maglaro. May bayad ang bawat session.',
+    choices:[
+      {text:'Sumali sa buong session',costScale:0.5,impact:{friendship:2,stress:-3},type:'positive',feedback:'Ang saya! Nagbond kayo nang maayos.'},
+      {text:'Kalahating session lang',costScale:0.25,impact:{friendship:1,stress:-1},type:'balance',feedback:'Nakatipid at nag-enjoy pa rin. Tamang desisyon.'},
+      {text:'Manood lang — hindi gumastos',costScale:0,impact:{friendship:1},type:'neutral',feedback:'Nandoon ka pa rin para sa barkada. Okay lang.'},
+    ]
+  },
+  {
+    id:'leisure-entertainment',
+    category:'leisure',
+    loc:'Sa Sinehan / Concert',
+    title:'Entertainment Event!',
+    text:'May showing o event na gusto mong puntahan. Mahal ang ticket pero isang beses lang ito.',
+    choices:[
+      {text:'Bumili ng ticket',costScale:0.75,impact:{stress:-2,friendship:1},type:'positive',feedback:'Worth it! Narelax ka at nag-enjoy. Deserve mo yan.'},
+      {text:'Manood ng livestream / libre na bersyon',costScale:0.05,impact:{stress:-1},type:'balance',feedback:'Okay din! Nakatipid ka ng malaki at nakita mo pa rin ang event.'},
+      {text:'Skip na lang — mahal',costScale:0,impact:{stress:1,friendship:-1},type:'negative',feedback:'Naiwan ka sa barkada. Sana mag-ipon ka para sa susunod.'},
+    ]
+  },
+  {
+    id:'leisure-gadget',
+    category:'leisure',
+    loc:'Sa Repair Shop',
+    title:'Gadget Emergency!',
+    text:'Ang gadget mo (phone screen, earphones, atbp.) ay nasira. Kailangan mo ito para sa pag-aaral at komunikasyon.',
+    choices:[
+      {text:'I-repair o palitan agad',costScale:1.2,impact:{stress:1,grades:1,energy:1},type:'positive',feedback:'Kailangan mo talaga ito. Worth the investment para sa academics at komunikasyon.'},
+      {text:'Gamitin pa kahit sira',costScale:0,impact:{stress:2,energy:-1},type:'negative',feedback:'Mahirap gamitin at nakaka-stress. Ayusin mo na bago lumala.'},
+    ]
+  },
+  {
+    id:'leisure-load',
+    category:'leisure',
+    loc:'Sa Sari-Sari Store',
+    title:'Kailangan ng Load / Data',
+    text:'Ubos na ang load at data mo. Hindi ka makakonekta sa internet para sa homework at komunikasyon sa pamilya.',
+    choices:[
+      {text:'Mag-load ng malaki — may data pa para sa buwan',costScale:0.4,impact:{grades:1,family:1,stress:-1},type:'positive',feedback:'Smart! Mas sulit ang bulk load kaysa araw-araw na pagbili.'},
+      {text:'Maliit na load lang — para ngayon',costScale:0.12,impact:{grades:0,family:1},type:'neutral',feedback:'Okay para ngayon pero uubos ulit agad. Hindi cost-efficient.'},
+      {text:'Humingi ng WiFi sa kapitbahay',costScale:0,impact:{family:0,stress:1},type:'balance',feedback:'Nakakonekta ka naman. Pero hindi palagi itong opsyon.'},
+    ]
+  },
+
+  // ── SAVINGS & BUDGETING (4) ───────────────────────────────────
+  {
+    id:'savings-temptation',
+    category:'savings',
+    loc:'Sa Mall / Tindahan',
+    title:'Nakakaakit na Sale!',
+    text:'May malaking sale ngayon. Gusto mong bilhin ang item na matagal mo nang gusto. Hindi naman kailangan pero sobrang baba ng presyo.',
+    choices:[
+      {text:'Bilhin na — baka mawala ang sale!',costScale:0.8,impact:{stress:-1},type:'neutral',feedback:'Nakuha mo ang gusto mo! Pero kumain ito ng malaking parte ng budget mo ngayon.'},
+      {text:'Ilagay sa wishlist — ipon muna',costScale:0,impact:{stress:0},type:'balance',feedback:'Disciplined ka! Kung talagang gusto mo ito, mas masaya pag may ipon ka para dito.'},
+      {text:'Mag-isip muna ng 24 oras bago bumili',costScale:0,impact:{stress:-1},type:'balance',feedback:'The 24-hour rule! Madalas, nawawala ang gusto pag natulog ka na.'},
+    ]
+  },
+  {
+    id:'savings-ipon',
+    category:'savings',
+    loc:'Sa Bahay',
+    title:'Mag-Ipon Ba Ngayong Linggo?',
+    text:'Natanggap mo ang allowance mo. May natitira ka pagkatapos ng lahat ng gastos. Ano ang gagawin mo sa sobra?',
+    choices:[
+      {text:'Ilagay sa ipon agad',costScale:-0.3,impact:{stress:-1},type:'positive',feedback:'Excellent! Ang ugali ng pag-ipon ay mas mahalaga kaysa halaga. Habit ito.'},
+      {text:'Gamitin sa kasiyahan ngayon',costScale:0.3,impact:{stress:-2,friendship:1},type:'neutral',feedback:'Nag-enjoy ka! Pero wala kang naipong extra para sa emergency.'},
+      {text:'Iwan lang — baka kailanganin',costScale:0,impact:{stress:0},type:'balance',feedback:'Safe choice. Hindi mo ginastos pero hindi rin aktibong nag-ipon.'},
+    ]
+  },
+  {
+    id:'savings-emergency',
+    category:'savings',
+    loc:'Sa Bahay',
+    title:'Biglang Kailangan ng Pera!',
+    text:'May hindi inaasahang gastos ngayon — may nasira, may kailangan, o may emergency. Wala kang ipon.',
+    choices:[
+      {text:'Humiram sa kaibigan',costScale:0,impact:{friendship:-1,stress:2},type:'negative',feedback:'Nakaraos ka pero may utang ka na ngayon. Ito ang dahilan kung bakit kailangan mag-ipon.'},
+      {text:'Kumuha sa allowance kahit kulang na',costScale:0.5,impact:{stress:2},type:'neutral',feedback:'Nagawa mo pero halos wala ka nang pang-bukas. Lesson: laging mag-ipon ng emergency fund.'},
+      {text:'Kausapin ang magulang nang tapat',costScale:0,impact:{family:1,stress:-1},type:'balance',feedback:'Tama! Hindi kahihiyan ang humingi ng tulong sa pamilya. Tapat at marunong kang humingi.'},
+    ]
+  },
+  {
+    id:'savings-utang',
+    category:'savings',
+    loc:'Sa Klase',
+    title:'Kaibigan Humihingi ng Utang',
+    text:'Kaibigan: "Pre, pahiram ng pera. Emergency daw. Ibabalik bukas." Ito na ang ikatlong beses ngayong buwan.',
+    choices:[
+      {text:'Ipahiram ulit — kaibigan naman',costScale:0.3,impact:{friendship:1,stress:1},type:'neutral',feedback:'Mabuting puso mo. Pero pag-isipan kung lagi kang ginagamit na ATM ng kaibigan.'},
+      {text:'Mag-decline nang maayos',costScale:0,impact:{friendship:-1,stress:-1},type:'balance',feedback:'Tama! May karapatan kang mag-decline. Ang tunay na kaibigan ay uunawa.'},
+      {text:'Ibigay pero sabihing huli na ito',costScale:0.3,impact:{friendship:0,stress:1},type:'balance',feedback:'May hangganan ka. Siguraduhing sinunod niya ang sinabi mo.'},
+    ]
+  },
+
+  // ── EARNING (3) ──────────────────────────────────────────────
+  {
+    id:'earn-sidejob',
+    category:'earning',
+    loc:'Sa Komunidad / Online',
+    title:'May Pagkakataon na Kumita!',
+    text:'May nag-aalok ng trabaho o gig sa iyo — tutoring, gawaing bahay, o simpleng task. Tanggapin mo ba?',
+    choices:[
+      {text:'Tanggapin ang trabaho (kumita!)',costScale:-0.75,impact:{stress:2,energy:-2,grades:-1},type:'positive',feedback:'Kumita ka ng sarili mong pera! Pero bantayan ang energy at grades.'},
+      {text:'Mag-focus muna sa pag-aaral',costScale:0,impact:{grades:1,stress:-1},type:'neutral',feedback:'Maayos na desisyon. Estudyante ka pa — studies first.'},
+    ]
+  },
+  {
+    id:'earn-recycle',
+    category:'earning',
+    loc:'Sa Bahay',
+    title:'Mag-Benta ng Lumang Gamit!',
+    text:'Marami kang lumang gamit — books, clothes, gadgets — na hindi na ginagamit. Pwede mong ibenta o ialay.',
+    choices:[
+      {text:'Ibenta online o sa ukay',costScale:-0.4,impact:{family:1,stress:-1},type:'positive',feedback:'One person\'s trash is another\'s treasure! Kumita ka at nalinis pa ang kwarto mo.'},
+      {text:'Ialay sa charity',costScale:0,impact:{family:2,stress:-1},type:'positive',feedback:'Napakabuting gawa! Hindi mo kumita pero nakatulong ka sa iba. Priceless.'},
+      {text:'Itago pa — baka kailanganin pa',costScale:0,impact:{stress:1},type:'neutral',feedback:'Baka hindi mo na talaga ito magagamit. Pag-isipan mo ulit.'},
+    ]
+  },
+  {
+    id:'earn-allowance-timing',
+    category:'earning',
+    loc:'Sa Bahay',
+    title:'Natanggap ang Allowance — Ano Muna?',
+    text:'Natanggap mo ang allowance mo para sa linggo. Paano mo ito ayusin bago gumastos?',
+    choices:[
+      {text:'Hatiin agad — ipon, kailangan, kasiyahan',costScale:0,impact:{stress:-2,grades:1},type:'positive',feedback:'50-30-20 rule in action! Ang pag-budget bago gumastos ay susi sa financial health.'},
+      {text:'Gamitin lang — ayusin kung kulang na',costScale:0,impact:{stress:1},type:'negative',feedback:'Madalas, kulang ka na bago pa matapos ang linggo. Plan mo ang pera, hindi ka nito pagpaplano.'},
+      {text:'Bayaran muna ang utang bago iba',costScale:0.2,impact:{friendship:1,stress:-1},type:'balance',feedback:'Tama! Utang muna, bago kasiyahan. Mabuting financial habit ito.'},
+    ]
+  },
+
+  // ── GROOMING & SELF-CARE (3) ─────────────────────────────────
+  {
+    id:'groom-haircut',
+    category:'grooming',
+    loc:'Sa Barbero / Salon',
+    title:'Haircut Time!',
+    text:'Mahahaba na ang buhok mo. Kailangan na ng gupit bago ang malaking okasyon o exam week.',
+    choices:[
+      {text:'Mag-salon / barbero',costScale:0.5,impact:{stress:-1,energy:1},type:'positive',feedback:'Fresh at presentable ka! Confident ka na lumabas.'},
+      {text:'Hilingin sa kaibigan o kapatid na gupitin',costScale:0,impact:{friendship:1,family:1},type:'balance',feedback:'Libre at masaya pa! Basta handa kang tanggapin ang resulta.'},
+    ]
+  },
+  {
+    id:'groom-clothes',
+    category:'grooming',
+    loc:'Sa Ref o Tingi-tingi',
+    title:'Damit para sa Espesyal na Okasyon',
+    text:'May espesyal na event sa school o pamilya. Gusto mo ng bagong damit pero mahal ang bago.',
+    choices:[
+      {text:'Bumili ng bago',costScale:0.8,impact:{stress:-1,friendship:1},type:'positive',feedback:'Confident ka at bagong-bago! Pero malaki ang gastos para sa isang okasyon lang.'},
+      {text:'Mag-ukay-ukay',costScale:0.2,impact:{stress:-1},type:'balance',feedback:'Budget-friendly at may pa-adventure pa! Madalas, may nahanap na mas maganda pa.'},
+      {text:'Gamitin na lang ang mayroon',costScale:0,impact:{stress:0},type:'balance',feedback:'Practical! Ang damit ay hindi sukatan ng pagkatao. Ikaw pa rin ang maganda.'},
+    ]
+  },
+  {
+    id:'groom-school-uniform',
+    category:'grooming',
+    loc:'Sa Tindahan',
+    title:'Uniform Nasira / Kupas na',
+    text:'Ang uniform mo ay kupas na at may butas pa. Pwede pa nang gamitin pero hindi maganda tingnan.',
+    choices:[
+      {text:'Magpabili ng bago',costScale:0.9,impact:{grades:1,stress:-1},type:'positive',feedback:'Presentable ka na! Good impression sa school.'},
+      {text:'Ipasulsi muna ang mayroon',costScale:0.1,impact:{energy:0},type:'balance',feedback:'Practical! Natipid ka at okay pa naman ang dating.'},
+      {text:'Gamitin pa kahit kupas',costScale:0,impact:{stress:1},type:'neutral',feedback:'Okay pa rin naman. Pero pag-isipan mo na ring magpalit sa susunod na allowance.'},
+    ]
+  },
+
+];
+
+// ─── SCENARIO POOL BUILDER ─────────────────────────────────
+// Returns a shuffled pool of universal scenarios for any grade level.
+// Call this instead of referencing scenariosDB[gradeKey] directly.
+function buildScenarioPool(gradeKey) {
+  const cfg = gradeConfig[gradeKey];
+  if (!cfg) return [];
+
+  // Clone and attach scaled costs to each choice
+  return universalScenarios.map(scenario => {
+    const scaled = {
+      ...scenario,
+      choices: scenario.choices.map(choice => ({
+        ...choice,
+        cost: Math.round(cfg.weeklyAllowance * choice.costScale),
+        // Override display text with scaled peso amount
+        text: choice.text + (choice.costScale !== 0
+          ? (choice.costScale < 0
+              ? ` (+₱${Math.abs(Math.round(cfg.weeklyAllowance * choice.costScale))})`
+              : ` (−₱${Math.round(cfg.weeklyAllowance * choice.costScale)})`)
+          : ''),
+      })),
+    };
+    return scaled;
+  });
 }
 
-function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+// ─── LEGACY COMPAT: scenariosDB still works if referenced elsewhere ─
+// Maps each grade key to the universal pool (lazily built on first access)
+const scenariosDB = new Proxy({}, {
+  get(_, gradeKey) {
+    return buildScenarioPool(gradeKey);
+  }
+});
+
+// ─── TOAST ─────────────────────────────────────────────────
+function showToast(msg, type = 'tip') {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { if (t) t.className = 'toast'; }, 2800);
+}
+
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }

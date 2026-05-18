@@ -14,7 +14,7 @@
     <!-- TOP BAR: Money (left) and Exit Menu (right) -->
     <div class="game-top-bar">
       <div class="money-display-main">
-        <div class="money-symbol">$</div>
+        <div class="money-symbol">₱</div>
         <div class="money-display" id="moneyDisplay">0</div>
       </div>
       <div class="top-right-info">
@@ -110,20 +110,20 @@
     <div class="nanay-modal" id="nanayModal">
       <div class="nanay-modal-content">
         <div class="nanay-header">
-          <h2>👩 Tulong mula sa Nanay</h2>
+          <h2>👩 Parental Advance</h2>
           <button class="modal-close" id="nanayModalClose">✕</button>
         </div>
         <div class="nanay-body">
-          <p class="nanay-text">Nanay: "Anak, magkano ang kailangan mo? Pero ibabawas ko ito sa susunod mong allowance!"</p>
+          <p class="nanay-text">Nanay: "Para sa extracurriculars, projects, o fees? Okay lang, pero ibabalik mo sa susunod na Monday!"</p>
           <div class="input-group">
-            <label>Magkano ang kai;angan mo?</label>
+            <label>Magkano ang kailangan mo?</label>
             <input type="number" id="borrowAmount" placeholder="₱0" min="0" max="500">
           </div>
         
         </div>
         <div class="nanay-footer">
           <button class="btn-cancel" id="borrowCancel">Hindi, Salamat</button>
-          <button class="btn-borrow" id="borrowConfirm">salamat, Nanay!</button>
+          <button class="btn-borrow" id="borrowConfirm">Salamat, Nanay!</button>
         </div>
       </div>
     </div>
@@ -201,6 +201,49 @@
         <div class="receipt-footer">
           <button class="btn-save-quick" id="quickSave50Btn">💾 I-save ang ₱50</button>
           <button class="btn-continue-receipt" id="continueReceipt">Magpatuloy ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MONDAY RESET MODAL -->
+    <div class="monday-reset-modal" id="mondayResetModal">
+      <div class="monday-reset-content">
+        <div class="monday-header">
+          <h2>📅 Linggo <span id="mondayWeekNum">1</span></h2>
+          <p class="monday-subtitle">Bagong simula ng linggo!</p>
+        </div>
+        <div class="monday-body">
+          <div class="monday-balance">
+            <p>💰 Current Balance:</p>
+            <p class="balance-amount" id="mondayBalance">₱0</p>
+          </div>
+          <div class="monday-events">
+            <h3>📋 Big Events This Week:</h3>
+            <div id="mondayEventsList"></div>
+          </div>
+        </div>
+        <div class="monday-footer">
+          <button class="btn-ready" id="mondayReadyBtn">Ready na ako! ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIG EVENT MODAL -->
+    <div class="big-event-modal" id="bigEventModal">
+      <div class="big-event-content">
+        <div class="big-event-header">
+          <h2>📋 <span id="bigEventTitle">Event Title</span></h2>
+        </div>
+        <div class="big-event-body">
+          <p id="bigEventDesc">Event description goes here</p>
+          <div class="big-event-cost">
+            <p>💸 Cost: <strong id="bigEventCost">₱0</strong></p>
+          </div>
+        </div>
+        <div class="big-event-options">
+          <button class="btn-event-pay" id="bigEventPayBtn">💳 Pay Now</button>
+          <button class="btn-event-advance" id="bigEventAdvanceBtn">👩 Parental Advance</button>
+          <button class="btn-event-skip" id="bigEventSkipBtn">⏭️ Skip</button>
         </div>
       </div>
     </div>
