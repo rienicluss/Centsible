@@ -18,6 +18,9 @@ const gs = {
   mondayAllowanceGiven:{}, // Track which Monday days already received allowance (to prevent double-adding on refresh)
 };
 
+// Pending advance choice state when a choice triggers parental advance modal
+let pendingAdvance = null;
+
 // Initialize game state from session storage
 function initGameState(){
   // Check if there's an existing game state to restore (game in progress)
@@ -162,12 +165,59 @@ function setupEventListeners(){
   document.getElementById('borrowCancel').addEventListener('click',()=>{
     document.getElementById('nanayModal').classList.remove('show');
     document.getElementById('borrowAmount').value='';
+    // If user cancelled a pending parental-advance choice, clear pending state and re-enable choices
+    if(pendingAdvance){
+      pendingAdvance = null;
+      document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=false);
+    }
   });
 
   document.getElementById('borrowConfirm').addEventListener('click',()=>{
     const amt=parseInt(document.getElementById('borrowAmount').value)||0;
     if(amt>0){
       soundManager.playSFX('borrow');
+      // If this confirm is for a pendingAdvance choice, apply impacts and advance day
+      if(pendingAdvance){
+        // Give money and record debt
+        gs.money += amt;
+        gs.debt += amt;
+        gs.parentalAdvanceCount++;
+        // Apply impacts from the pending choice
+        const im = pendingAdvance.impact || {};
+        gs.energy    = clamp(gs.energy    + (im.energy    || 0), 0, 10);
+        gs.health    = clamp(gs.health    + (im.health    || 0), 0, 10);
+        gs.friendship = clamp(gs.friendship + (im.friendship || 0), 0, 10);
+        gs.family    = clamp(gs.family    + (im.family    || 0), 0, 10);
+        gs.grades    = clamp(gs.grades    + (im.grades    || 0), 0, 100);
+        gs.stress    = clamp(gs.stress    + (im.stress    || 0), 0, 10);
+        if(im.savings) gs.savings = (gs.savings || 0) + (im.savings || 0);
+
+        showToast('💵 Nanay gave you ₱'+amt+'! Remember: next Monday -₱'+amt+' (parental advance)','tip');
+        document.getElementById('nanayModal').classList.remove('show');
+        document.getElementById('borrowAmount').value='';
+
+        // Record this choice for weekly receipt (cost recorded as 0 since not deducted now)
+        gs.dailyChoices.push({title: pendingAdvance.choice.text, cost: 0, borrowed: amt, day: gs.currentDay});
+
+        // Advance to next day (same flow as makeChoice)
+        gs.currentDay++;
+        updateUI();
+        sessionStorage.setItem('gameState', JSON.stringify(gs));
+
+        // Update debt UI
+        updateDebtInfo();
+
+        const isMondayAllowanceDay=[8,15,22,29].includes(gs.currentDay);
+        if(isMondayAllowanceDay){ setTimeout(showMondayReset, 600); pendingAdvance = null; return; }
+        if(gs.currentDay>30){ setTimeout(()=>window.location.href='result.html',900); pendingAdvance = null; return; }
+        // Re-enable any disabled choice buttons
+        document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=false);
+        pendingAdvance = null;
+        setTimeout(loadScenario,350);
+        return;
+      }
+
+      // Regular quick borrow (not from a pending choice)
       gs.money+=amt;
       gs.debt+=amt;
       gs.parentalAdvanceCount++;
@@ -544,6 +594,18 @@ function makeChoice(ch){
     soundManager.playSFX('coin');
   } else if(ch.type === 'positive'){
     soundManager.playSFX('success');
+  }
+  // If this choice requests a parental advance (debt) — open Nanay modal instead
+  const isParentalAdvance = (ch.impact && ch.impact.debt) || (ch.debt) || String(ch.text||'').toLowerCase().includes('parental');
+  if(isParentalAdvance){
+    // Store pending advance and show modal for user to confirm amount
+    pendingAdvance = { choice: ch, amount: costAmount, impact: ch.impact || {} };
+    // Pre-fill borrow amount input if available
+    const borrowInput = document.getElementById('borrowAmount');
+    if(borrowInput) borrowInput.value = costAmount || '';
+    document.getElementById('nanayModal').classList.add('show');
+    // Do not deduct from money now — will apply when user confirms in modal
+    return;
   }
   
   gs.money -= costAmount;
