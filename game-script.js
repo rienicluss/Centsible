@@ -32,6 +32,9 @@ function initGameState(){
       setupEventListeners();
       updateUI();
       
+      // Play game music when resuming
+      soundManager.playGameMusic();
+      
       // Check if this is a Monday - show Monday Reset modal
       if([1,8,15,22,29].includes(gs.currentDay)){
         setTimeout(showMondayReset, 300);
@@ -79,6 +82,9 @@ function initGameState(){
   generateWeeklyBigEvents();
   
   updateUI();
+  
+  // Play game music
+  soundManager.playGameMusic();
   
   // Check if this is a Monday - show Monday Reset modal
   if([1,8,15,22,29].includes(gs.currentDay)){
@@ -161,6 +167,7 @@ function setupEventListeners(){
   document.getElementById('borrowConfirm').addEventListener('click',()=>{
     const amt=parseInt(document.getElementById('borrowAmount').value)||0;
     if(amt>0){
+      soundManager.playSFX('borrow');
       gs.money+=amt;
       gs.debt+=amt;
       gs.parentalAdvanceCount++;
@@ -192,9 +199,11 @@ function setupEventListeners(){
     const amt=parseInt(document.getElementById('savingsAmount').value)||0;
     if(amt>0){
       if(amt > gs.money){
+        soundManager.playSFX('error');
         showToast('Kulang ang iyong pera! Available lang: ₱'+gs.money,'bad');
         return;
       }
+      soundManager.playSFX('save');
       gs.money-=amt;
       gs.savings+=amt;
       showToast('💰 Nag-ipon ka ng ₱'+amt+'! Total savings: ₱'+gs.savings,'ok');
@@ -202,6 +211,7 @@ function setupEventListeners(){
       document.getElementById('savingsAmount').value='';
       updateUI();
     }else{
+      soundManager.playSFX('error');
       showToast('Maglagay ng amount!','bad');
     }
   });
@@ -216,9 +226,11 @@ function setupEventListeners(){
     const amt=parseInt(document.getElementById('withdrawAmount').value)||0;
     if(amt>0){
       if(amt > gs.savings){
+        soundManager.playSFX('error');
         showToast('Kulang ang ipon mo! Available lang: ₱'+gs.savings,'bad');
         return;
       }
+      soundManager.playSFX('coin');
       gs.savings-=amt;
       gs.money+=amt;
       showToast('💸 Kunin mo ang ₱'+amt+'! Remaining savings: ₱'+gs.savings,'ok');
@@ -226,6 +238,7 @@ function setupEventListeners(){
       document.getElementById('withdrawAmount').value='';
       updateUI();
     }else{
+      soundManager.playSFX('error');
       showToast('Maglagay ng amount!','bad');
     }
   });
@@ -508,6 +521,8 @@ function generateFeedback(ch, costAmount){
 
 // ─── CHOICE ────────────────────────────────────────────────
 function makeChoice(ch){
+  soundManager.playSFX('click');
+  
   document.querySelectorAll('.choice-btn-spent').forEach(b=>b.disabled=true);
   const oldMoney=gs.money;
   
@@ -522,6 +537,13 @@ function makeChoice(ch){
   } else if(ch.costScale !== undefined){
     // Old system: costScale as percentage of allowance
     costAmount = Math.round(gs.weeklyAllowance * ch.costScale);
+  }
+  
+  // Play sound effect based on spending
+  if(costAmount > 0){
+    soundManager.playSFX('coin');
+  } else if(ch.type === 'positive'){
+    soundManager.playSFX('success');
   }
   
   gs.money -= costAmount;

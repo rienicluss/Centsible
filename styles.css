@@ -403,6 +403,203 @@ body{
 .toast.bad{border-color:#e74c3c;color:#ff6b6b;box-shadow:0 8px 16px rgba(255,107,107,0.2)}
 .toast.tip{border-color:var(--yellow);color:var(--yellow);box-shadow:0 8px 16px rgba(255,215,0,0.2)}
 
+/* ── SOUND SETTINGS MODAL ── */
+.sound-settings-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.sound-settings-modal.show {
+  display: flex;
+}
+
+.sound-settings-content {
+  background: var(--card);
+  border: 3px solid var(--yellow);
+  padding: 0;
+  border-radius: 0;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.sound-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--red);
+  padding: 16px 20px;
+  border-bottom: 2px solid var(--yellow);
+}
+
+.sound-settings-header h3 {
+  font-family: 'Lilita One', cursive;
+  color: var(--yellow);
+  font-size: 1.4em;
+  margin: 0;
+  text-shadow: 2px 2px 0 var(--darkred);
+}
+
+.sound-settings-close {
+  background: none;
+  border: none;
+  color: var(--yellow);
+  font-size: 1.6em;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.sound-settings-close:hover {
+  color: var(--cream);
+  transform: scale(1.15);
+}
+
+.sound-settings-body {
+  padding: 20px;
+}
+
+.sound-setting-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sound-setting-group label {
+  color: var(--yellow);
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+
+.volume-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--yellow);
+  cursor: pointer;
+  border: 2px solid var(--red);
+  transition: all 0.2s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: var(--cream);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--yellow);
+  cursor: pointer;
+  border: 2px solid var(--red);
+  transition: all 0.2s;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: var(--cream);
+}
+
+.volume-percent {
+  color: var(--cream);
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+  font-size: 0.9em;
+}
+
+.sound-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.sound-toggle-label:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.sound-toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-switch {
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  background: var(--border);
+  border: 2px solid var(--muted);
+  border-radius: 12px;
+  position: relative;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.sound-toggle-label input[type="checkbox"]:checked + .toggle-switch {
+  background: var(--yellow);
+  border-color: var(--red);
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--dark);
+  border-radius: 8px;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s;
+}
+
+.sound-toggle-label input[type="checkbox"]:checked + .toggle-switch::before {
+  left: 22px;
+}
+
+.sound-toggle-label span:last-child {
+  color: var(--cream);
+  font-weight: 600;
+  flex: 1;
+  font-size: 0.95em;
+}
+
 /* ── RESULT ── */
 #resultScreen{background:var(--dark);border:3px solid var(--yellow);overflow:hidden;display:flex;flex-direction:column;width:100%;height:100vh}
 .result-header{

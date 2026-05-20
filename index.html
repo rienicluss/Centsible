@@ -45,6 +45,9 @@ function startSlideshow() {
   if(titleScreen) titleScreen.style.display = 'none';
   if(slideshowContainer) slideshowContainer.style.display = 'flex';
   
+  // Play story music
+  soundManager.playStoryMusic();
+  
   slides = Array.from(document.querySelectorAll('.slideshow-container .slide'));
   currentSlide = 0;
   
@@ -148,8 +151,46 @@ if(document.readyState === 'loading'){
     <button class="hamburger-menu" id="menuBtn" onclick="toggleMenu()">☰</button>
     <div id="menuDropdown" class="spent-dropdown" style="display:none;">
       <button class="spent-menu-item" id="leaderboardBtn">🏆 Leaderboards</button>
-      <button class="spent-menu-item" id="soundBtn" disabled title="Coming soon!">🔊 Sounds</button>
+      <button class="spent-menu-item" id="soundBtn">🔊 Sounds</button>
       <button class="spent-menu-item" id="howtoBtn">📖 How to Play</button>
+    </div>
+
+    <!-- SOUND SETTINGS MODAL -->
+    <div class="sound-settings-modal" id="soundModal">
+      <div class="sound-settings-content">
+        <div class="sound-settings-header">
+          <h3>Sound Settings</h3>
+          <button class="sound-settings-close" id="soundModalClose">✕</button>
+        </div>
+        <div class="sound-settings-body">
+          <!-- Master Volume -->
+          <div class="sound-setting-group">
+            <label>Master Volume</label>
+            <div class="volume-slider-container">
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7" class="volume-slider">
+              <span class="volume-percent" id="volumePercent">70%</span>
+            </div>
+          </div>
+          
+          <!-- Background Music Toggle -->
+          <div class="sound-setting-group">
+            <label class="sound-toggle-label">
+              <input type="checkbox" id="bgMusicToggle" checked>
+              <span class="toggle-switch"></span>
+              <span>Background Music</span>
+            </label>
+          </div>
+          
+          <!-- Sound Effects Toggle -->
+          <div class="sound-setting-group">
+            <label class="sound-toggle-label">
+              <input type="checkbox" id="sfxToggle" checked>
+              <span class="toggle-switch"></span>
+              <span>Sound Effects</span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- TITLE SCREEN (OPENING) -->
@@ -234,6 +275,54 @@ if(document.readyState === 'loading'){
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- AUDIO ELEMENTS -->
+<!-- Background Music for Different Screens -->
+<audio id="bgMusic-menu" loop preload="auto" muted>
+  <source src="audio/bg-menu.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="bgMusic-story" loop preload="auto" muted>
+  <source src="audio/bg-story.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="bgMusic-game" loop preload="auto" muted>
+  <source src="audio/bg-game.mp3" type="audio/mpeg">
+</audio>
+
+<!-- SOUND EFFECTS -->
+<audio id="sfx-click" preload="auto">
+  <source src="audio/sfx/click.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-coin" preload="auto">
+  <source src="audio/sfx/coin.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-error" preload="auto">
+  <source src="audio/sfx/error.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-success" preload="auto">
+  <source src="audio/sfx/success.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-levelup" preload="auto">
+  <source src="audio/sfx/levelup.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-unlock" preload="auto">
+  <source src="audio/sfx/unlock.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-borrow" preload="auto">
+  <source src="audio/sfx/borrow.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfx-save" preload="auto">
+  <source src="audio/sfx/save.mp3" type="audio/mpeg">
+</audio>
+
+<script src="sound-manager.js"></script>
 <script src="game-data.js"></script>
 <script src="setup-script-spent.js"></script>
 </body>
