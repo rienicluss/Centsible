@@ -555,12 +555,26 @@ const scenariosDB = new Proxy({}, {
 });
 
 // ─── TOAST ─────────────────────────────────────────────────
+// Robust toast helper: ensures only one timer is active and uses classList toggles
+let _toastTimer = null;
 function showToast(msg, type = 'tip') {
   const t = document.getElementById('toast');
   if (!t) return;
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => { if (t) t.className = 'toast'; }, 2800);
+  t.textContent = msg || '';
+  t.classList.remove('ok', 'bad', 'tip');
+  t.classList.add(type);
+  // ensure visible
+  t.style.display = 'block';
+  t.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    if (t) {
+      t.classList.remove('show');
+      // hide after transition/frame to avoid flicker
+      setTimeout(()=>{ t.style.display = 'none'; }, 120);
+    }
+    _toastTimer = null;
+  }, 2800);
 }
 
 // ─── DAILY SCENARIOS (One per day for 30 days) ──────────────────

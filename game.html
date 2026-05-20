@@ -48,6 +48,19 @@
         
         <!-- CHOICES -->
         <div id="choicesPanel" class="choices-container"></div>
+
+        <!-- Mobile inline action/info (appears below choices on small screens) -->
+        <div class="mobile-action-inline" id="mobileActionInline" aria-hidden="true">
+          <div class="mobile-info-inline">
+            <div class="mobile-info-pill" id="mobileSavingsInline">₱0</div>
+            <div class="mobile-info-pill" id="mobileDebtInline">₱0</div>
+          </div>
+          <div class="mobile-action-inline-buttons">
+            <button class="mobile-action" id="mobileNanayInline" onclick="document.getElementById('nanayQuickBtn')?.click()">👩</button>
+            <button class="mobile-action" id="mobileIponInline" onclick="document.getElementById('iponQuickBtn')?.click()">💰</button>
+            <button class="mobile-action" id="mobileStatsInline" onclick="document.getElementById('statsBtn')?.click()">📊</button>
+          </div>
+        </div>
       </div>
 
       <!-- RIGHT SIDEBAR: Optional Info -->
@@ -266,7 +279,19 @@
 
   </div>
 </div>
-<div class="toast" id="toast"></div>
+  <!-- Mobile info + action bar for small screens -->
+  <div class="mobile-action-bar" id="mobileActionBar" aria-hidden="true">
+    <div class="mobile-info-group">
+      <div class="mobile-info-pill" id="mobileSavings">₱0</div>
+      <div class="mobile-info-pill" id="mobileDebt">₱0</div>
+    </div>
+    <div class="mobile-action-buttons">
+      <button class="mobile-action" id="mobileNanay" onclick="document.getElementById('nanayQuickBtn')?.click()">👩</button>
+      <button class="mobile-action" id="mobileIpon" onclick="document.getElementById('iponQuickBtn')?.click()">💰</button>
+      <button class="mobile-action" id="mobileStats" onclick="document.getElementById('statsBtn')?.click()">📊</button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
 
 <!-- AUDIO ELEMENTS -->
 <!-- Background Music for Different Screens -->
@@ -318,5 +343,33 @@
 <script src="sound-manager.js"></script>
 <script src="game-data.js"></script>
 <script src="game-script.js"></script>
+<script>
+// Sync mobile info pills with in-page savings/debt values
+function updateMobileInfo(){
+  const s = document.getElementById('savingsDisplay');
+  const d = document.getElementById('debtDisplay');
+  const ms = document.getElementById('mobileSavings');
+  const md = document.getElementById('mobileDebt');
+  if(ms && s) ms.textContent = s.textContent || '₱0';
+  if(md && d) md.textContent = d.textContent || '₱0';
+}
+setInterval(updateMobileInfo,300);
+updateMobileInfo();
+// Ensure toast auto-hides even if multiple showToast implementations conflict
+(function(){
+  const t = document.getElementById('toast');
+  if(!t) return;
+  // click to dismiss immediately
+  t.addEventListener('click', ()=> t.classList.remove('show'));
+  // observe class changes and schedule auto-hide
+  const obs = new MutationObserver(()=>{
+    if(t.classList.contains('show')){
+      if(t._autoHide) clearTimeout(t._autoHide);
+      t._autoHide = setTimeout(()=>{ t.classList.remove('show'); }, 3000);
+    }
+  });
+  obs.observe(t, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
 </body>
 </html>

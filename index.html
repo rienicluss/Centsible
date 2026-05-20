@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- <title>ALLOWANCE — Laro ng Pera</title> -->
+<title>CenT-sible</title>
 <link rel="icon" type="image/png" href="Assets/game-logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -102,22 +102,52 @@ function startAutoAdvance() {
 function setupInputListeners() {
   // Name input
   const playerName = document.getElementById('playerName');
+  const btnNextName = document.getElementById('btnNextName');
   if(playerName && currentSlide === 6){
-    playerName.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter' && playerName.value.trim().length > 0){
-        nextSlide();
+    if(!playerName.dataset.nextListener){
+      playerName.dataset.nextListener = 'true';
+      playerName.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter' && playerName.value.trim().length > 0){
+          nextSlide();
+        }
+      });
+      if(btnNextName){
+        btnNextName.addEventListener('click', () => {
+          if(playerName.value.trim().length > 0) nextSlide();
+        });
+        playerName.addEventListener('input', () => {
+          btnNextName.disabled = !playerName.value.trim();
+        });
       }
-    });
+    }
+    if(btnNextName){
+      btnNextName.disabled = !playerName.value.trim();
+    }
   }
   
   // Age input
   const playerAge = document.getElementById('playerAge');
+  const btnNextAge = document.getElementById('btnNextAge');
   if(playerAge && currentSlide === 7){
-    playerAge.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter' && playerAge.value){
-        nextSlide();
+    if(!playerAge.dataset.nextListener){
+      playerAge.dataset.nextListener = 'true';
+      playerAge.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter' && playerAge.value){
+          nextSlide();
+        }
+      });
+      if(btnNextAge){
+        btnNextAge.addEventListener('click', () => {
+          if(playerAge.value) nextSlide();
+        });
+        playerAge.addEventListener('input', () => {
+          btnNextAge.disabled = !playerAge.value;
+        });
       }
-    });
+    }
+    if(btnNextAge){
+      btnNextAge.disabled = !playerAge.value;
+    }
   }
 }
 
@@ -248,6 +278,7 @@ if(document.readyState === 'loading'){
         <div class="slide-content">
           <label class="input-label">Ano ang pangalan mo?</label>
           <input type="text" class="slide-input" id="playerName" placeholder="hal. Juan dela Cruz" maxlength="24" data-slide="7">
+          <button type="button" class="slide-next-btn" id="btnNextName">SUNOD</button>
         </div>
       </div>
 
@@ -255,6 +286,7 @@ if(document.readyState === 'loading'){
         <div class="slide-content">
           <label class="input-label">Ilang taon ka na?</label>
           <input type="number" class="slide-input" id="playerAge" min="8" max="25" placeholder="Edad mo" data-slide="8">
+          <button type="button" class="slide-next-btn" id="btnNextAge">SUNOD</button>
         </div>
       </div>
 

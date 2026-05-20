@@ -565,16 +565,24 @@ body{
 .toast{
   position:fixed;bottom:20px;left:50%;
   transform:translateX(-50%) translateY(120px);
+  display:none;
   background:var(--bg-dark);border:2px solid var(--yellow);color:var(--cream);
   padding:14px 24px;font-size:0.9em;font-weight:700;
   max-width:360px;width:90%;text-align:center;
   transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);z-index:999;border-radius:0;
   box-shadow:0 8px 16px rgba(0,0,0,0.4);
 }
-.toast.show{transform:translateX(-50%) translateY(0);animation:slideInUp 0.4s ease}
+.toast.show{display:block;transform:translateX(-50%) translateY(0);animation:slideInUp 0.4s ease}
 .toast.ok{border-color:var(--yellow);color:var(--yellow);box-shadow:0 8px 16px rgba(255,193,7,0.2)}
 .toast.bad{border-color:var(--red);color:var(--red);box-shadow:0 8px 16px rgba(255,153,0,0.2)}
 .toast.tip{border-color:var(--yellow);color:var(--yellow);box-shadow:0 8px 16px rgba(255,215,0,0.2)}
+
+/* On small screens, lift the toast above the mobile action bar */
+@media (max-width:480px){
+  .toast{bottom:120px;z-index:100020}
+  /* Extra safe: other feedback-like boxes */
+  .feedback-box, .feedback-panel, .result-modal, .result-panel{z-index:100020;position:relative}
+}
 
 /* ── SOUND SETTINGS MODAL ── */
 .sound-settings-modal {
@@ -1583,6 +1591,9 @@ body{
   .form-group input,.form-group select{font-size:1em;padding:12px;min-height:44px}
   .btn-start{padding:16px 12px;font-size:1em;letter-spacing:1px;min-height:48px;width:100%;margin-top:12px}
   .btn-leaderboard{padding:12px 12px;font-size:0.95em;min-height:44px;width:100%;margin-top:8px}
+
+  /* Ensure next buttons on input slides are visible on small screens */
+  .slide-next-btn{display:block;width:90%;max-width:320px;margin-top:8px;z-index:20}
   
   /* GAMEPLAY */
   .game-screen{padding:0;margin:0}
@@ -1748,6 +1759,7 @@ body{
 
 /* ── MEDIUM DEVICES (481px - 768px) ── */
 @media (max-width:768px){
+  .slide-next-btn{display:block;width:90%;max-width:300px;}
   /* START/SETUP SCREENS */
   .spent-title{font-size:2.8em;letter-spacing:1px}
   .spent-subtitle{font-size:1.2em;letter-spacing:0.5px}
@@ -2550,6 +2562,31 @@ body{
   color:var(--muted);font-weight:400;
 }
 
+.slide-next-btn{
+  display:none;
+  margin-top:16px;
+  width:100%;max-width:320px;
+  padding:14px 18px;
+  border:2px solid var(--yellow);
+  background:var(--yellow);
+  color:var(--darkred);
+  font-family:'Lilita One',cursive;
+  font-size:1em;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+
+.slide-next-btn:hover{
+  background:var(--orange);
+  border-color:var(--orange);
+}
+
+.slide-next-btn:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
 .final-slide .slide-content{
   justify-content:center;gap:40px;
 }
@@ -2577,6 +2614,106 @@ body{
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* MOBILE: make the in-game screen single-column and touch-friendly */
+@media (max-width:480px){
+  .game-top-bar{padding:12px 14px;border-bottom-width:1px}
+  .money-symbol{font-size:1.4em}
+  .money-display{font-size:1.6em}
+  .top-right-info{align-items:flex-start}
+  .player-name{font-size:0.85em}
+
+  .spent-content-wrapper{flex-direction:column;padding:12px;gap:12px}
+  .left-sidebar,.right-sidebar{display:none}
+  .center-content{align-items:flex-start;justify-content:flex-start;padding:0 8px}
+
+  .scenario-title{font-size:1.4em;max-width:100%}
+  .scenario-text{font-size:0.95em;max-width:100%}
+
+  .choices-container{max-width:100%;width:100%}
+  .choice-btn-spent{width:100%;padding:14px 16px;font-size:1em}
+
+  /* Move persistent buttons inward for small screens */
+  .menu-btn{left:12px;bottom:12px;padding:10px 12px}
+  .quit-btn{right:12px;top:12px;padding:10px 12px}
+
+  /* Modals full-width friendly */
+  .stats-grid,.nanay-modal-content,.ipon-modal-content,.receipt-content,.monday-reset-content{width:95%;max-width:600px;padding:14px}
+
+  /* Mobile action bar: fixed at the bottom; hide inline action block under choices */
+  .mobile-action-inline{display:none !important}
+  .mobile-action-bar{display:flex !important;position:fixed;left:10px;right:10px;bottom:12px;height:56px;gap:8px;align-items:center;justify-content:space-around;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.06);padding:6px;border-radius:10px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.45)}
+  .mobile-action{flex:1;height:44px;border-radius:6px;border:2px solid var(--border);background:var(--card);color:var(--white);font-size:1.1em;cursor:pointer}
+  .mobile-action:active{transform:scale(0.98)}
+  .mobile-action:focus{outline:none}
+  .mobile-action-bar .mobile-info-group{display:flex;gap:8px;align-items:center;margin-right:8px}
+  .mobile-action-bar .mobile-info-pill{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:10px;color:var(--white);font-weight:700;font-size:0.95em}
+  .mobile-action-buttons{display:flex;gap:8px;flex:1;justify-content:flex-end}
+}
+
+/* Ensure stats modal and its content appear above the fixed mobile action bar */
+  @media (max-width:480px){
+  .stats-panel{z-index:100001}
+  .stats-grid{padding-bottom:180px}
+}
+
+/* Ensure main content has space for the mobile action bar */
+@media (max-width:480px){
+  .spent-content-wrapper, .game-main-content, .center-content, .choices-container{padding-bottom:120px}
+}
+
+/* Extra safe rules: ensure common status/pill rows sit above the fixed action bar */
+@media (max-width:480px){
+  .status-bar, .status-row, .pill-row, .player-badges, .status-pills, .top-pills{position:relative;z-index:100002}
+  /* Give main content more bottom space to avoid any overlap */
+  .spent-content-wrapper, .game-main-content, .center-content, .choices-container{padding-bottom:240px}
+}
+
+/* Mobile info pills inline */
+@media (max-width:480px){
+  .mobile-info-inline .mobile-info-pill{background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:16px;color:var(--white);font-weight:700}
+}
+
+/* Debug / visibility override: ensure mobile next buttons show in emulators
+   Visible on screens <=768px; hidden on larger screens to keep desktop layout */
+@media (max-width:768px){
+  .slide-next-btn{display:block !important;position:relative;z-index:9999}
+}
+@media (min-width:769px){
+  .slide-next-btn{display:none !important}
+}
+/* Hide mobile-only action bar on wider screens (desktop) */
+@media (min-width:769px){
+  .mobile-action-bar, .mobile-action-inline{display:none !important}
+}
+/* Mobile tweaks for Result, Leaderboard, and How-To pages */
+@media (max-width:480px){
+  /* RESULT PAGE */
+  .spent-result{padding:12px}
+  .spent-container{padding:16px;border-width:2px}
+  .result-header{padding-bottom:12px}
+  .result-header h2{font-size:1.4em}
+  .receipt-content,.receipt-body{padding:10px}
+  .receipt-items{gap:8px}
+  .receipt-item-name{font-size:0.95em}
+  .receipt-footer{display:flex;flex-direction:column;gap:8px}
+  .btn-save-quick,.btn-continue-receipt{width:100%}
+
+  /* LEADERBOARD */
+  .lb-entry-spent{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+  .lb-rank-spent{width:auto;text-align:left}
+  .lb-info-spent{margin-left:0}
+  .lb-score-spent{text-align:left}
+
+  /* HOW-IT-WORKS */
+  .page-wrap{padding:12px}
+  .page-header{padding:18px 12px}
+  .page-header h1{font-size:1.6em}
+  .how-grid{grid-template-columns:1fr;gap:10px}
+  .feature-name{font-size:0.95em}
+  .how-card{padding:10px}
+}
+
 /* RESULT PAGE STYLING */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
