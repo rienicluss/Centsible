@@ -38,6 +38,7 @@ function submitSetupForm() {
 let currentSlide = 0;
 let slides = [];
 let autoScrollTimer = null;
+let slideshowTapHandler = null;
 
 function startSlideshow() {
   const titleScreen = document.getElementById('titleScreen');
@@ -54,6 +55,20 @@ function startSlideshow() {
   
   showSlide(0);
   startAutoAdvance();
+
+  // Attach tap/click handler so tapping anywhere on story slides advances
+  const container = document.getElementById('slideshowContainer');
+  if(container && !slideshowTapHandler){
+    slideshowTapHandler = (e) => {
+      // ignore taps on interactive controls
+      const tgt = e.target;
+      if(tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'BUTTON' || tgt.closest && tgt.closest('.slide-input'))) return;
+      if(currentSlide >= 0 && currentSlide < 6){
+        nextSlide();
+      }
+    };
+    container.addEventListener('pointerup', slideshowTapHandler);
+  }
 }
 
 function showSlide(n) {
@@ -71,6 +86,12 @@ function showSlide(n) {
     if(n >= 6) {
       if(autoScrollTimer) clearTimeout(autoScrollTimer);
       setupInputListeners();
+      // Remove tap handler when on input slides to avoid accidental advances
+      const container = document.getElementById('slideshowContainer');
+      if(container && slideshowTapHandler){
+        container.removeEventListener('pointerup', slideshowTapHandler);
+        slideshowTapHandler = null;
+      }
     }
     
     const input = slides[n].querySelector('.slide-input');
