@@ -26,11 +26,10 @@ const soundManager = {
     this.loadPreferences();
     this.setupControls();
     
-    // Try to play immediately with muted (will work even on file://)
+    // Try to play immediately muted and prepare user gesture unlock
     this.playMenuMusic();
-    
-    // Unmute on first user interaction
     this.setupAudioUnmute();
+    this.setupAudioPermission();
   },
   
   // Setup unmuting on user interaction (browsers allow unmuting after user gesture)
